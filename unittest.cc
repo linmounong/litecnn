@@ -59,7 +59,7 @@ void test_matrix() {
 }
 
 void test_layers() {
-  AffineLayer affine(3, 4);
+  Affine affine(3, 4);
   Matrix x(2, 3);
   x.uniform(1);
   auto out = affine.forward(x);
@@ -69,6 +69,14 @@ void test_layers() {
   auto dx = affine.backward(dout);
   assert(dx.rows() == 2);
   assert(dx.cols() == 3);
+
+  Relu relu;
+  x = Matrix({{-1, 1}, {0, 2}});
+  out = relu.forward(x);
+  assert(out == Matrix({{0, 1}, {0, 2}}));
+  dout = Matrix({{5, 6}, {7, 8}});
+  dx = relu.backward(dout);
+  assert(dx == Matrix({{0, 6}, {0, 8}}));
 }
 
 int main() {
