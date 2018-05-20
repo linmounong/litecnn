@@ -55,6 +55,8 @@ class Matrix {
 
   float sum() const;
 
+  void debug() const;
+
  private:
   int64_t n_;
   int64_t m_;

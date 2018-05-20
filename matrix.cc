@@ -107,6 +107,15 @@ Matrix Matrix::T() const {
   return ret;
 };
 
+void Matrix::debug() const {
+  for (int64_t i = 0; i < rows(); i++) {
+    for (int64_t j = 0; j < cols(); j++) {
+      std::cout << at(i, j) << " ";
+    }
+    std::cout << std::endl;
+  }
+}
+
 Vector::Vector() : Vector(0) {}
 Vector::Vector(int64_t n) : data_(n) {}
 Vector::Vector(const std::vector<float>& v) : data_(v) {}

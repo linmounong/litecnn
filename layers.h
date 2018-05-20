@@ -1,6 +1,5 @@
 // TODO
 // * conv
-// * pool
 // * batchnorm
 #ifndef LAYERS_H
 #define LAYERS_H
@@ -32,6 +31,20 @@ class Relu {
 
  private:
   Matrix x_;
+};
+
+class MaxPool {
+ public:
+  MaxPool(int64_t h, int64_t w, int64_t s);
+  Matrix forward(const Matrix& x);
+  Matrix backward(const Matrix& dout);
+
+ private:
+  Matrix out_;
+  Matrix x_;
+  const int64_t h_;
+  const int64_t w_;
+  const int64_t s_;  // stride
 };
 
 #endif  // LAYERS_H

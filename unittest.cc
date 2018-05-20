@@ -77,6 +77,13 @@ void test_layers() {
   dout = Matrix({{5, 6}, {7, 8}});
   dx = relu.backward(dout);
   assert(dx == Matrix({{0, 6}, {0, 8}}));
+
+  MaxPool max_pool(2, 2, 2);
+  x = Matrix({{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+  out = max_pool.forward(x);
+  assert(out == Matrix({{5, 6}, {8, 9}}));
+  dx = max_pool.backward(out);
+  assert(dx == Matrix({{0, 0, 0}, {0, 5, 6}, {0, 8, 9}}));
 }
 
 int main() {
