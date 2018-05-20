@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-#include "layers.h"
-#include "matrix.h"
+#include "src/layers.h"
+#include "src/matrix.h"
 
 void test_matrix() {
   Matrix m1(3, 6);

@@ -6,7 +6,7 @@ OBJS = matrix.o layers.o
 
 all: $(OBJS)
 
-%.o: %.cc
+%.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -c $<
 
 bin/unittest: unittest.cc $(OBJS)
