@@ -1,3 +1,6 @@
+#ifndef MATRIX_H
+#define MATRIX_H
+
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
@@ -6,19 +9,10 @@
 
 class Matrix {
  public:
-  Matrix(int64_t n, int64_t m) : n_(n), m_(m), si_(m), sj_(1), data_(n * m) {}
-
+  Matrix();
+  Matrix(int64_t n, int64_t m);
   // for testing
-  explicit Matrix(const std::vector<std::vector<float>>& m)
-      : Matrix(m.size(), m[0].size()) {
-    for (int64_t i = 0; i < m.size(); i++) {
-      for (int64_t j = 0; j < m[0].size(); j++) {
-        set(m[i][j], i, j);
-      }
-    }
-  }
-
-  inline const float* data() const { return data_.data(); }
+  explicit Matrix(const std::vector<std::vector<float>>& m);
 
   inline float at(int64_t i, int64_t j) const {
     assert(i >= 0 && i < n_ && j >= 0 && j < m_);
@@ -66,3 +60,5 @@ class Matrix {
   int64_t sj_;
   std::vector<float> data_;
 };
+
+#endif  // MATRIX_H

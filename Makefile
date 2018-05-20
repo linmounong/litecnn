@@ -2,19 +2,19 @@
 
 CXX = c++
 CXXFLAGS = -pthread -std=c++11 -march=native
-OBJS = matrix.o
-TESTS = matrix_test
+OBJS = matrix.o vector.o
 
 all: $(OBJS)
 
 %.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $<
 
-%_test: %_test.cc $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ && ./$@
+bin/unittest: unittest.cc $(OBJS)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean:
-	rm -f *.o *_test
+	rm -rf *.o bin
 
-test: $(TESTS)
-	@echo "all passed"
+test: bin/unittest
+	bin/unittest

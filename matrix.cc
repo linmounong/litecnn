@@ -5,6 +5,20 @@
 
 #include "matrix.h"
 
+Matrix::Matrix() : Matrix(0, 0) {}
+
+Matrix::Matrix(int64_t n, int64_t m)
+    : n_(n), m_(m), si_(m), sj_(1), data_(n * m) {}
+
+Matrix::Matrix(const std::vector<std::vector<float>>& m)
+    : Matrix(m.size(), m[0].size()) {
+  for (int64_t i = 0; i < m.size(); i++) {
+    for (int64_t j = 0; j < m[0].size(); j++) {
+      set(m[i][j], i, j);
+    }
+  }
+}
+
 void Matrix::zero() { std::fill(data_.begin(), data_.end(), 0.0); }
 
 void Matrix::uniform(float a) {
