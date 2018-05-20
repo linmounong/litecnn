@@ -2,7 +2,7 @@
 
 CXX = c++
 CXXFLAGS = -pthread -std=c++11 -march=native
-OBJS = matrix.o layers.o
+OBJS = matrix.o layers.o ndarray.o
 
 all: $(OBJS)
 

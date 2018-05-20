@@ -3,6 +3,40 @@
 
 #include "src/layers.h"
 #include "src/matrix.h"
+#include "src/ndarray.h"
+
+void test_ndarray() {
+  Ndarray m(3, 6);
+  auto& data = *m.data();
+  assert(m.ndim() == 2);
+  assert(m.shape(0) == 3);
+  assert(m.shape(1) == 6);
+  for (int i = 0; i < 3; i++) {
+    for (int j = 0; j < 6; j++) {
+      assert(m.at(i, j) == 0);
+      m.at(i, j) = i + j;
+    }
+  }
+  std::vector<float> expected{0, 1, 2, 3, 4, 5,  //
+                              1, 2, 3, 4, 5, 6,  //
+                              2, 3, 4, 5, 6, 7};
+  assert(expected == data);
+
+  auto t = m.T();
+  assert(t.ndim() == 2);
+  assert(t.shape(0) == 6);
+  assert(t.shape(1) == 3);
+  assert(expected == data);  // underlying dat not changed
+
+  expected[3] = 20;
+  t.at(3, 0) = 20;
+  assert(expected == data);
+
+  auto r = m.reshape(3, 3, 1, 2);
+  expected[5] = 50;
+  r.at(0, 2, 0, 1) = 50;
+  assert(expected == data);
+}
 
 void test_matrix() {
   Matrix m1(3, 6);
@@ -87,6 +121,7 @@ void test_layers() {
 }
 
 int main() {
+  test_ndarray();
   test_matrix();
   test_layers();
   std::cout << "all passed" << std::endl;
