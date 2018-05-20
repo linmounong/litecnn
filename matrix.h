@@ -7,6 +7,8 @@
 #include <iostream>
 #include <vector>
 
+class Vector;
+
 class Matrix {
  public:
   Matrix();
@@ -19,9 +21,9 @@ class Matrix {
     return data_[i * si_ + j * sj_];
   };
 
-  inline float set(float v, int64_t i, int64_t j) {
+  inline float& at(int64_t i, int64_t j) {
     assert(i >= 0 && i < n_ && j >= 0 && j < m_);
-    data_[i * si_ + j * sj_] = v;
+    return data_[i * si_ + j * sj_];
   };
 
   inline float at_or_zero(int64_t i, int64_t j) const {
@@ -39,9 +41,9 @@ class Matrix {
 
   void uniform(float a);
 
-  bool operator==(const Matrix& m);
-
+  bool operator==(const Matrix& m) const;
   Matrix operator+(const Matrix& m) const;
+  Matrix operator+(const Vector& v) const;
 
   // takes shape of m, padding with zero
   Matrix inner(const Matrix& m, int64_t offset_i = 0,
@@ -58,6 +60,26 @@ class Matrix {
   int64_t m_;
   int64_t si_;
   int64_t sj_;
+  std::vector<float> data_;
+};
+
+class Vector {
+ public:
+  Vector();
+  explicit Vector(int64_t n);
+  // for testing
+  explicit Vector(const std::vector<float>& v);
+
+  inline float& operator[](int64_t i) { return data_[i]; }
+  inline const float operator[](int64_t i) const { return data_[i]; }
+  inline int64_t size() const { return data_.size(); }
+
+  bool operator==(const Vector& v) const;
+
+  void zero();
+  void add(const Matrix& m, int64_t i);
+
+ private:
   std::vector<float> data_;
 };
 

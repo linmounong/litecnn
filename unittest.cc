@@ -1,9 +1,8 @@
 #include <cassert>
 #include <iostream>
 
-// #include "layers.h"
+#include "layers.h"
 #include "matrix.h"
-#include "vector.h"
 
 void test_matrix() {
   Matrix m1(3, 6);
@@ -34,37 +33,46 @@ void test_matrix() {
   Matrix m4({{1, 2, 3}, {4, 5, 6}});
   Matrix m5({{7, 8}, {9, 10}, {11, 12}});
   assert(m4.dot(m5) == Matrix({{58, 64}, {139, 154}}));
+
   Matrix m6 = m5.T();
+  assert(m6.rows() == 2);
+  assert(m6.cols() == 3);
   assert(m6 == Matrix({{7, 9, 11}, {8, 10, 12}}));
   assert((m4 + m6) == Matrix({{8, 11, 14}, {12, 15, 18}}));
-}
 
-// void test_layers() {
-//   AffineLayer affine(3, 4);
-//   Matrix x(2, 3);
-//   x.uniform(1);
-//   auto out = affine.forward(x);
-//   assert(out.rows() == 2);
-//   assert(out.cols() == 4);
-// }
-
-void test_vector() {
-  Vector v(10);
-  assert(v.size() == 10);
+  Vector v(3);
+  assert(v.size() == 3);
   v.zero();
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 3; i++) {
     assert(v[i] == 0);
   }
-  for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 3; i++) {
     v[i] = i * i;
   }
-  for (int i = 0; i < 10; i++) {
-    assert(v[i] == i * i);
-  }
+  assert(v == Vector({0, 1, 4}));
+
+  Matrix m({{1, 2, 3}, {4, 5, 6}});
+  assert((m + v) == Matrix({{1, 3, 7}, {4, 6, 10}}));
+
+  v.add(m, 0);
+  assert(v == Vector({1, 3, 7}));
+}
+
+void test_layers() {
+  AffineLayer affine(3, 4);
+  Matrix x(2, 3);
+  x.uniform(1);
+  auto out = affine.forward(x);
+  assert(out.rows() == 2);
+  assert(out.cols() == 4);
+  auto dout = out;
+  auto dx = affine.backward(dout);
+  assert(dx.rows() == 2);
+  assert(dx.cols() == 3);
 }
 
 int main() {
   test_matrix();
-  test_vector();
+  test_layers();
   std::cout << "all passed" << std::endl;
 }
