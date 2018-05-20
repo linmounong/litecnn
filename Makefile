@@ -9,7 +9,7 @@ all: $(OBJS)
 %.o: src/%.cc
 	$(CXX) $(CXXFLAGS) -c $<
 
-bin/unittest: unittest.cc $(OBJS)
+bin/unittest: src/unittest.cc $(OBJS)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -o $@ $^
 

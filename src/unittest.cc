@@ -1,9 +1,9 @@
 #include <cassert>
 #include <iostream>
 
-#include "src/layers.h"
-#include "src/matrix.h"
-#include "src/ndarray.h"
+#include "layers.h"
+#include "matrix.h"
+#include "ndarray.h"
 
 void test_ndarray() {
   Ndarray m(3, 6);
