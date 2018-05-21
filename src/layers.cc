@@ -1,11 +1,13 @@
 #include "layers.h"
 
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
 #include "ndarray.h"
 
-Affine::Affine(int64_t m, int64_t n) : w_(m, n), b_(n) { w_.uniform(1); }
+Affine::Affine(int64_t m, int64_t n, float scale) : w_(m, n), b_(n) {
+  w_.gaussian(scale);
+}
 
 Ndarray Affine::forward(const Ndarray& x) {
   x_ = x;
@@ -113,7 +115,7 @@ Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p)
       fn_(fn),
       s_(s),
       p_(p) {
-  w_.uniform(1);
+  w_.gaussian(1);
 }
 
 Ndarray Conv::forward(const Ndarray& x) {

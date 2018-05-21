@@ -92,7 +92,7 @@ class Ndarray {
 
   Ndarray sum(int64_t dim) const;
 
-  void uniform(float a);
+  void gaussian(float a);
 
   Ndarray fork() const;
 

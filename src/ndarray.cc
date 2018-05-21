@@ -10,7 +10,6 @@
 #include <random>
 #include <vector>
 
-
 Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}
 
@@ -98,11 +97,11 @@ Ndarray Ndarray::operator*(float a) const {
   return ret;
 }
 
-void Ndarray::uniform(float a) {
+void Ndarray::gaussian(float a) {
   std::minstd_rand rng(1);
-  std::uniform_real_distribution<> uniform(-a, a);
+  std::normal_distribution<> gaussian(0, a);
   for (int64_t i = 0; i < data_->size(); i++) {
-    (*data_)[i] = uniform(rng);
+    (*data_)[i] = gaussian(rng);
   };
 }
 

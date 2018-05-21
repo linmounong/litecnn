@@ -92,9 +92,9 @@ void TestNdarray() {
 }
 
 void TestLayers() {
-  Affine affine(3, 4);
+  Affine affine(3, 4, 1e-3);
   Ndarray x(2, 3);
-  x.uniform(1);
+  x.gaussian(1);
   auto out = affine.forward(x);
   assert(out.shape(0) == 2);
   assert(out.shape(1) == 4);
@@ -148,7 +148,7 @@ void TestLayers() {
   out = conv.forward(x);
   assert((std::vector<int64_t>{2, 6, 4, 5} == out.shape()));
   dout = out.as_zeros();
-  dout.uniform(1);
+  dout.gaussian(1);
   dx = conv.backward(dout);
   assert(dx.shape() == x.shape());
 }
