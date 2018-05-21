@@ -1,5 +1,5 @@
 #include <iostream>
-#include <limits>
+#include <cmath>
 
 #include "layers.h"
 #include "ndarray.h"
