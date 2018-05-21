@@ -23,10 +23,9 @@ Ndarray Affine::backward(const Ndarray& dout) {
   return dout.dot(w_.T());
 }
 
-// modifies x
 Ndarray Relu::forward(const Ndarray& x) {
   x_ = x;
-  Ndarray out = x;
+  Ndarray out = x.fork();
   for (float& v : *out.data()) {
     if (v < 0) {
       v = 0;
@@ -35,9 +34,8 @@ Ndarray Relu::forward(const Ndarray& x) {
   return out;
 }
 
-// modifies dout
 Ndarray Relu::backward(const Ndarray& dout) {
-  Ndarray dx = dout;
+  Ndarray dx = dout.fork();
   for (int64_t i0 = 0; i0 < dx.shape(0); i0++) {
     for (int64_t i1 = 0; i1 < dx.shape(1); i1++) {
       for (int64_t i2 = 0; i2 < dx.shape(2); i2++) {
