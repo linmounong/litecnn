@@ -23,6 +23,7 @@ void test_ndarray() {
       2, 3, 4, 5, 6, 7,  //
   };
   assert(expected == data);
+  assert(63 == m.sum());
 
   auto t = m.T();
   assert(t.ndim() == 2);
@@ -42,6 +43,30 @@ void test_ndarray() {
   auto f = r.fork();
   f.at(0, 2, 0, 1) = 60;  // forked data
   assert(expected == data);
+
+  auto m2 = m * 2;
+  auto& data2 = *m2.data();
+  for (int i = 0; i < expected.size(); i++) {
+    assert(data2[i] == data[i] * 2);
+  }
+
+  Ndarray a({2, 3},
+            {
+                1, 2, 3,  //
+                4, 5, 6,  //
+            });
+  Ndarray b({3, 2},
+            {
+                7, 8,    //
+                9, 10,   //
+                11, 12,  //
+            });
+  Ndarray c({2, 2},
+            {
+                58, 64,    //
+                139, 154,  //
+            });
+  assert(a.dot(b) == c);
 }
 
 void test_matrix() {

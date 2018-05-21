@@ -11,6 +11,8 @@
 class Ndarray {
  public:
   Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0, int64_t s3 = 0);
+  // for testing
+  Ndarray(const std::vector<int64_t>& shape, const std::vector<float>& data);
   Ndarray(const std::vector<int64_t>& shape,
           std::shared_ptr<std::vector<float>> data);
 
@@ -54,6 +56,8 @@ class Ndarray {
 
   // Ndarray operator+(const Ndarray& rhs) const;
 
+  Ndarray operator*(float a) const;
+
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
                   int64_t s3 = 0);
 
@@ -61,11 +65,13 @@ class Ndarray {
 
   void zero();
 
+  float sum() const;
+
   void uniform(float a);
 
   Ndarray fork() const;
 
-  // Ndarray dot(const Ndarray& rhs) const;
+  Ndarray dot(const Ndarray& rhs) const;
 
   void debug() const;
 
