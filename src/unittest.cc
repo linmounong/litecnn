@@ -17,16 +17,18 @@ void test_ndarray() {
       m.at(i, j) = i + j;
     }
   }
-  std::vector<float> expected{0, 1, 2, 3, 4, 5,  //
-                              1, 2, 3, 4, 5, 6,  //
-                              2, 3, 4, 5, 6, 7};
+  std::vector<float> expected{
+      0, 1, 2, 3, 4, 5,  //
+      1, 2, 3, 4, 5, 6,  //
+      2, 3, 4, 5, 6, 7,  //
+  };
   assert(expected == data);
 
   auto t = m.T();
   assert(t.ndim() == 2);
   assert(t.shape(0) == 6);
   assert(t.shape(1) == 3);
-  assert(expected == data);  // underlying dat not changed
+  assert(expected == data);  // underlying data not changed
 
   expected[3] = 20;
   t.at(3, 0) = 20;
@@ -35,6 +37,10 @@ void test_ndarray() {
   auto r = m.reshape(3, 3, 1, 2);
   expected[5] = 50;
   r.at(0, 2, 0, 1) = 50;
+  assert(expected == data);
+
+  auto f = r.fork();
+  f.at(0, 2, 0, 1) = 60;  // forked data
   assert(expected == data);
 }
 

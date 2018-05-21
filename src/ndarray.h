@@ -63,6 +63,8 @@ class Ndarray {
 
   void uniform(float a);
 
+  Ndarray fork() const;
+
   // Ndarray dot(const Ndarray& rhs) const;
 
   void debug() const;

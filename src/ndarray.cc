@@ -98,6 +98,12 @@ Ndarray Ndarray::T() const {
   return ret;
 };
 
+Ndarray Ndarray::fork() const {
+  Ndarray ret = *this;
+  ret.data_ = std::make_shared<std::vector<float>>(*data_);
+  return ret;
+}
+
 void Ndarray::debug() const {
   std::cout << "ndim:" << ndim() << std::endl;
   for (int64_t i = 0; i < ndim(); i++) {
