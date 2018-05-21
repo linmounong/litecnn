@@ -60,6 +60,35 @@ bool Ndarray::operator==(const Ndarray& rhs) const {
   return true;
 }
 
+Ndarray Ndarray::operator+(const Ndarray& rhs) const {
+  Ndarray a = T();
+  Ndarray b = rhs.T();
+  std::vector<int64_t> shape;
+  for (int64_t i = 0; i < std::max(a.ndim(), b.ndim()); i++) {
+    auto si = i < a.ndim() ? a.shape(i) : 1;
+    auto sj = i < b.ndim() ? b.shape(i) : 1;
+    assert(si == 1 || sj == 1 || si == sj);
+    shape.push_back(std::max(si, sj));
+  }
+  Ndarray ret(shape, nullptr);
+  for (int64_t i0 = 0; i0 < ret.shape_[0]; i0++) {
+    for (int64_t i1 = 0; i1 < ret.shape_[1]; i1++) {
+      for (int64_t i2 = 0; i2 < ret.shape_[2]; i2++) {
+        for (int64_t i3 = 0; i3 < ret.shape_[3]; i3++) {
+          ret.at(i0, i1, i2, i3) =
+              a.at(std::min(i0, a.shape_[0] - 1), std::min(i1, a.shape_[1] - 1),
+                   std::min(i2, a.shape_[2] - 1),
+                   std::min(i3, a.shape_[3] - 1)) +
+              b.at(std::min(i0, b.shape_[0] - 1), std::min(i1, b.shape_[1] - 1),
+                   std::min(i2, b.shape_[2] - 1),
+                   std::min(i3, b.shape_[3] - 1));
+        }
+      }
+    }
+  }
+  return ret.T();
+}
+
 Ndarray Ndarray::operator*(float a) const {
   auto ret = this->fork();
   for (auto& v : *ret.data_) {

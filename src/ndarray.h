@@ -54,7 +54,8 @@ class Ndarray {
 
   bool operator==(const Ndarray& rhs) const;
 
-  // Ndarray operator+(const Ndarray& rhs) const;
+  // broadcast
+  Ndarray operator+(const Ndarray& rhs) const;
 
   Ndarray operator*(float a) const;
 

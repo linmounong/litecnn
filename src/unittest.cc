@@ -67,6 +67,24 @@ void test_ndarray() {
                 139, 154,  //
             });
   assert(a.dot(b) == c);
+
+  // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
+  // >>> b = (np.arange(6)+7).reshape(1, 2, 3)
+  // >>> (a+b).shape
+  // (2, 2, 3)
+  // >>> a+b
+  // array([[[ 8, 10, 12],
+  //         [11, 13, 15]],
+  //
+  //        [[11, 13, 15],
+  //         [14, 16, 18]]])
+
+  a = a.reshape(2, 1, 3);
+  b = b.reshape(1, 2, 3);
+  c = Ndarray({2, 2, 3}, {8, 10, 12, 11, 13, 15, 11, 13, 15, 14, 16, 18});
+  assert(a + b == c);
+  b = b.reshape(2, 3);
+  assert(a + b == c);
 }
 
 void test_matrix() {
