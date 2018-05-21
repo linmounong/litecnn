@@ -47,4 +47,25 @@ class MaxPool {
   const int64_t s_;  // stride
 };
 
+class Conv {
+ public:
+  Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p);
+  Ndarray forward(const Ndarray& x);      // N,fc,H,W
+  Ndarray backward(const Ndarray& dout);  // N,fn,H',W'
+
+  Ndarray w_;   // (fn,fc,fh,fw)
+  Ndarray dw_;  // (fn,fc,fh,fw)
+  Ndarray b_;   // (fc,)
+  Ndarray db_;  // (fc,)
+
+ private:
+  const int64_t fh_;  // filter height
+  const int64_t fw_;  // filter width
+  const int64_t fc_;  // filter depth
+  const int64_t fn_;  // number of filters
+  const int64_t s_;   // stride
+  const int64_t p_;   // stride
+  Ndarray x_;
+};
+
 #endif  // LAYERS_H

@@ -59,7 +59,7 @@ Matrix Matrix::dot(const Matrix& m) const {
 }
 
 float Matrix::sum() const {
-  return std::accumulate(data_.begin(), data_.end(), 0);
+  return std::accumulate(data_.begin(), data_.end(), 0.0f);
 }
 
 bool Matrix::operator==(const Matrix& m) const {

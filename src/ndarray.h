@@ -1,10 +1,8 @@
 #ifndef NDARRAY_H
 #define NDARRAY_H
 
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <vector>
 

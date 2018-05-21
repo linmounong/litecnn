@@ -177,7 +177,7 @@ void Ndarray::debug() const {
 }
 
 float Ndarray::sum() const {
-  return std::accumulate(data_->begin(), data_->end(), 0);
+  return std::accumulate(data_->begin(), data_->end(), 0.0f);
 }
 
 std::vector<int64_t> Ndarray::shape() const {
