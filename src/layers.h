@@ -40,8 +40,8 @@ class MaxPool {
   Ndarray backward(const Ndarray& dout);
 
  private:
-  Ndarray out_;
-  Ndarray x_;
+  Ndarray outt_;
+  Ndarray xt_;
   const int64_t h_;
   const int64_t w_;
   const int64_t s_;  // stride

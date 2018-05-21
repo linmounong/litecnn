@@ -51,39 +51,53 @@ Ndarray Relu::backward(const Ndarray& dout) {
 MaxPool::MaxPool(int64_t h, int64_t w, int64_t s) : h_(h), w_(w), s_(s) {}
 
 Ndarray MaxPool::forward(const Ndarray& x) {
-  assert(x.ndim() == 2);
-  Ndarray out((x.shape(0) + s_ - 1) / s_, (x.shape(1) + s_ - 1) / s_);
-  for (int64_t i = 0; i < out.shape(0); i++) {
-    for (int64_t j = 0; j < out.shape(1); j++) {
-      float v = -std::numeric_limits<float>::infinity();
-      for (int64_t ii = i * s_; ii < std::min(i * s_ + h_, x.shape(0)); ii++) {
-        for (int64_t jj = j * s_; jj < std::min(j * s_ + w_, x.shape(1));
-             jj++) {
-          v = std::max(v, x.at(ii, jj));
+  Ndarray xt = x.T();
+  auto shape = xt.shape();
+  shape[0] = (xt.shape(0) + s_ - 1) / s_;
+  shape[1] = (xt.shape(1) + s_ - 1) / s_;
+  Ndarray outt(shape, nullptr);
+  for (int64_t i0 = 0; i0 < outt.shape(0); i0++) {
+    for (int64_t i1 = 0; i1 < outt.shape(1); i1++) {
+      for (int64_t i2 = 0; i2 < outt.shape(2); i2++) {
+        for (int64_t i3 = 0; i3 < outt.shape(3); i3++) {
+          float v = -std::numeric_limits<float>::infinity();
+          for (int64_t ii = i0 * s_; ii < std::min(i0 * s_ + w_, xt.shape(0));
+               ii++) {
+            for (int64_t jj = i1 * s_; jj < std::min(i1 * s_ + h_, xt.shape(1));
+                 jj++) {
+              v = std::max(v, xt.at(ii, jj, i2, i3));
+            }
+          }
+          assert(!std::isinf(v));
+          outt.at(i0, i1, i2, i3) = v;
         }
       }
-      assert(!std::isinf(v));
-      out.at(i, j) = v;
     }
   }
-  out_ = out;
-  x_ = x;
-  return out;
+  outt_ = outt;
+  xt_ = xt;
+  return outt.T();
 }
 
 Ndarray MaxPool::backward(const Ndarray& dout) {
-  Ndarray dx = Ndarray::zeros_like(x_);
-  for (int64_t i = 0; i < dout.shape(0); i++) {
-    for (int64_t j = 0; j < dout.shape(1); j++) {
-      for (int64_t ii = i * s_; ii < std::min(i * s_ + h_, dx.shape(0)); ii++) {
-        for (int64_t jj = j * s_; jj < std::min(j * s_ + w_, dx.shape(1));
-             jj++) {
-          if (out_.at(i, j) == x_.at(ii, jj)) {
-            dx.at(ii, jj) += dout.at(i, j);
+  Ndarray doutt = dout.T();
+  Ndarray dxt = xt_.as_zeros();
+  for (int64_t i0 = 0; i0 < doutt.shape(0); i0++) {
+    for (int64_t i1 = 0; i1 < doutt.shape(1); i1++) {
+      for (int64_t i2 = 0; i2 < doutt.shape(2); i2++) {
+        for (int64_t i3 = 0; i3 < doutt.shape(3); i3++) {
+          for (int64_t ii = i0 * s_; ii < std::min(i0 * s_ + w_, dxt.shape(0));
+               ii++) {
+            for (int64_t jj = i1 * s_;
+                 jj < std::min(i1 * s_ + h_, dxt.shape(1)); jj++) {
+              if (outt_.at(i0, i1, i2, i3) == xt_.at(ii, jj, i2, i3)) {
+                dxt.at(ii, jj, i2, i3) += doutt.at(i0, i1, i2, i3);
+              }
+            }
           }
         }
       }
     }
   }
-  return dx;
+  return dxt.T();
 }

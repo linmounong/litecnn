@@ -10,8 +10,6 @@
 
 class Ndarray {
  public:
-  static Ndarray zeros_like(const Ndarray& a);
-
   Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0, int64_t s3 = 0);
   // for testing
   Ndarray(const std::vector<int64_t>& shape, const std::vector<float>& data);
@@ -101,6 +99,8 @@ class Ndarray {
   Ndarray fork() const;
 
   Ndarray dot(const Ndarray& rhs) const;
+
+  Ndarray as_zeros() const;
 
   void debug() const;
 

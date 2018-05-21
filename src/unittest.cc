@@ -88,7 +88,7 @@ void test_ndarray() {
   b = b.reshape(2, 3);
   assert(a + b == c);
 
-  auto z = Ndarray::zeros_like(a);
+  auto z = a.as_zeros();
   assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));
 }
 
@@ -112,12 +112,21 @@ void test_layers() {
   dx = relu.backward(dout);
   assert(dx == Ndarray({2, 2}, {0, 6, 0, 8}));
 
-  MaxPool max_pool(2, 2, 2);
+  MaxPool pool1(2, 2, 2);
   x = Ndarray({3, 3}, {1, 2, 3, 4, 5, 6, 7, 8, 9});
-  out = max_pool.forward(x);
+  out = pool1.forward(x);
   assert(out == Ndarray({2, 2}, {5, 6, 8, 9}));
-  dx = max_pool.backward(out);
+  dx = pool1.backward(out);
   assert(dx == Ndarray({3, 3}, {0, 0, 0, 0, 5, 6, 0, 8, 9}));
+
+  MaxPool poo2(2, 2, 2);
+  x = Ndarray({2, 3, 3},
+              {1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+  out = poo2.forward(x);
+  assert(out == Ndarray({2, 2, 2}, {5, 6, 8, 9, 5, 6, 8, 9}));
+  dx = poo2.backward(out);
+  assert(dx == Ndarray({2, 3, 3},
+                       {0, 0, 0, 0, 5, 6, 0, 8, 9, 0, 0, 0, 0, 5, 6, 0, 8, 9}));
 }
 
 int main() {

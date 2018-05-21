@@ -10,15 +10,6 @@
 
 #include "ndarray.h"
 
-// static
-Ndarray Ndarray::zeros_like(const Ndarray& a) {
-  std::vector<int64_t> shape;
-  for (int i = 0; i < a.ndim(); i++) {
-    shape.push_back(a.shape(i));
-  }
-  return Ndarray(shape, nullptr);
-}
-
 Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}
 
@@ -219,4 +210,12 @@ Ndarray Ndarray::sum(int64_t dim) const {
   }
   newshape.erase(newshape.begin() + dim);
   return ret.reshape(newshape);
+}
+
+Ndarray Ndarray::as_zeros() const {
+  std::vector<int64_t> shape;
+  for (int i = 0; i < ndim(); i++) {
+    shape.push_back(shape_[i]);
+  }
+  return Ndarray(shape, nullptr);
 }
