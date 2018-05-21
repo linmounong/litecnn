@@ -10,6 +10,8 @@
 
 class Ndarray {
  public:
+  static Ndarray zeros_like(const Ndarray& a);
+
   Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0, int64_t s3 = 0);
   // for testing
   Ndarray(const std::vector<int64_t>& shape, const std::vector<float>& data);
@@ -43,14 +45,36 @@ class Ndarray {
                     l * stride_[3]];
   };
 
+  inline float at(const std::vector<int64_t>& idx) const {
+    int64_t n = 0;
+    for (int64_t i = 0; i < idx.size(); i++) {
+      n += idx[i] * stride_[i];
+    }
+    return (*data_)[n];
+  };
+
+  inline float& at(const std::vector<int64_t>& idx) {
+    int64_t n = 0;
+    for (int64_t i = 0; i < idx.size(); i++) {
+      n += idx[i] * stride_[i];
+    }
+    return (*data_)[n];
+  };
+
   inline int64_t ndim() const { return ndim_; }
 
   inline std::vector<float>* data() const { return data_.get(); }
 
   inline int64_t shape(int64_t dim) const {
-    assert(dim >= 0 && dim < ndim());
+    if (dim < 0) {
+      dim += ndim();
+    }
+    assert(dim >= 0);
+    assert(dim < shape_.size());
     return shape_[dim];
   }
+
+  std::vector<int64_t> shape() const;
 
   bool operator==(const Ndarray& rhs) const;
 
@@ -62,11 +86,15 @@ class Ndarray {
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
                   int64_t s3 = 0);
 
+  Ndarray reshape(const std::vector<int64_t>& shape);
+
   Ndarray T() const;
 
   void zero();
 
   float sum() const;
+
+  Ndarray sum(int64_t dim) const;
 
   void uniform(float a);
 

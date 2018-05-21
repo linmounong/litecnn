@@ -10,6 +10,15 @@
 
 #include "ndarray.h"
 
+// static
+Ndarray Ndarray::zeros_like(const Ndarray& a) {
+  std::vector<int64_t> shape;
+  for (int i = 0; i < a.ndim(); i++) {
+    shape.push_back(a.shape(i));
+  }
+  return Ndarray(shape, nullptr);
+}
+
 Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}
 
@@ -138,7 +147,11 @@ Ndarray Ndarray::dot(const Ndarray& rhs) const {
 }
 
 Ndarray Ndarray::reshape(int64_t s0, int64_t s1, int64_t s2, int64_t s3) {
-  return Ndarray({s0, s1, s2, s3}, data_);
+  return reshape({s0, s1, s2, s3});
+}
+
+Ndarray Ndarray::reshape(const std::vector<int64_t>& shape) {
+  return Ndarray(shape, data_);
 }
 
 Ndarray Ndarray::T() const {
@@ -174,4 +187,36 @@ void Ndarray::debug() const {
 
 float Ndarray::sum() const {
   return std::accumulate(data_->begin(), data_->end(), 0);
+}
+
+std::vector<int64_t> Ndarray::shape() const {
+  std::vector<int64_t> shape = shape_;
+  shape.resize(ndim());
+  return shape;
+}
+
+Ndarray Ndarray::sum(int64_t dim) const {
+  if (dim < 0) {
+    dim += ndim();
+  }
+  assert(dim >= 0);
+  assert(dim < ndim());
+  auto newshape = shape();
+  newshape[dim] = 1;
+  Ndarray ret(newshape, nullptr);
+  for (int64_t i0 = 0; i0 < shape_[0]; i0++) {
+    int64_t j0 = dim == 0 ? 0 : i0;
+    for (int64_t i1 = 0; i1 < shape_[1]; i1++) {
+      int64_t j1 = dim == 1 ? 0 : i1;
+      for (int64_t i2 = 0; i2 < shape_[2]; i2++) {
+        int64_t j2 = dim == 2 ? 0 : i2;
+        for (int64_t i3 = 0; i3 < shape_[3]; i3++) {
+          int64_t j3 = dim == 3 ? 0 : i3;
+          ret.at(j0, j1, j2, j3) += at(i0, i1, i2, i3);
+        }
+      }
+    }
+  }
+  newshape.erase(newshape.begin() + dim);
+  return ret.reshape(newshape);
 }

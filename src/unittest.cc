@@ -11,6 +11,7 @@ void test_ndarray() {
   assert(m.ndim() == 2);
   assert(m.shape(0) == 3);
   assert(m.shape(1) == 6);
+  assert((std::vector<int64_t>{3, 6} == m.shape()));
   for (int i = 0; i < 3; i++) {
     for (int j = 0; j < 6; j++) {
       assert(m.at(i, j) == 0);
@@ -24,6 +25,8 @@ void test_ndarray() {
   };
   assert(expected == data);
   assert(63 == m.sum());
+  assert(std::vector<int64_t>{6} == m.sum(0).shape());
+  assert(std::vector<int64_t>{3} == m.sum(1).shape());
 
   auto t = m.T();
   assert(t.ndim() == 2);
@@ -85,6 +88,9 @@ void test_ndarray() {
   assert(a + b == c);
   b = b.reshape(2, 3);
   assert(a + b == c);
+
+  auto z = Ndarray::zeros_like(a);
+  assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));
 }
 
 void test_matrix() {
