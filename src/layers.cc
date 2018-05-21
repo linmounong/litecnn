@@ -1,7 +1,8 @@
+#include "layers.h"
+
 #include <iostream>
 #include <cmath>
 
-#include "layers.h"
 #include "ndarray.h"
 
 Affine::Affine(int64_t m, int64_t n) : w_(m, n), b_(n) { w_.uniform(1); }

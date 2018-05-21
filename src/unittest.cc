@@ -1,10 +1,12 @@
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 #include "layers.h"
+#include "loss.h"
 #include "ndarray.h"
 
-void test_ndarray() {
+void TestNdarray() {
   Ndarray m(3, 6);
   auto& data = *m.data();
   assert(m.ndim() == 2);
@@ -52,22 +54,19 @@ void test_ndarray() {
     assert(data2[i] == data[i] * 2);
   }
 
-  Ndarray a({2, 3},
-            {
-                1, 2, 3,  //
-                4, 5, 6,  //
-            });
-  Ndarray b({3, 2},
-            {
-                7, 8,    //
-                9, 10,   //
-                11, 12,  //
-            });
-  Ndarray c({2, 2},
-            {
-                58, 64,    //
-                139, 154,  //
-            });
+  Ndarray a({2, 3}, {
+                        1, 2, 3,  //
+                        4, 5, 6,  //
+                    });
+  Ndarray b({3, 2}, {
+                        7, 8,    //
+                        9, 10,   //
+                        11, 12,  //
+                    });
+  Ndarray c({2, 2}, {
+                        58, 64,    //
+                        139, 154,  //
+                    });
   assert(a.dot(b) == c);
 
   // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
@@ -92,7 +91,7 @@ void test_ndarray() {
   assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));
 }
 
-void test_layers() {
+void TestLayers() {
   Affine affine(3, 4);
   Ndarray x(2, 3);
   x.uniform(1);
@@ -154,8 +153,20 @@ void test_layers() {
   assert(dx.shape() == x.shape());
 }
 
+void TestLoss() {
+  Ndarray x({2, 3}, {1, 2, 3, 4, 5, 6});
+  std::vector<int64_t> y = {1, 2};
+  Ndarray dx = x.as_zeros();
+  float loss = SoftmaxLoss(x, y, &dx);
+  assert(std::abs(loss - 0.9076059644443804) < 1e-6);
+  Ndarray expected({2, 3}, {0.04501529, -0.37763576, 0.33262048, 0.04501529,
+                            0.12236424, -0.16737952});
+  assert(std::abs(dx.sum() - expected.sum()) < 1e-6);
+}
+
 int main() {
-  test_ndarray();
-  test_layers();
+  TestNdarray();
+  TestLayers();
+  TestLoss();
   std::cout << "all passed" << std::endl;
 }

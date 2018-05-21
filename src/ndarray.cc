@@ -1,3 +1,5 @@
+#include "ndarray.h"
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -8,7 +10,6 @@
 #include <random>
 #include <vector>
 
-#include "ndarray.h"
 
 Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}

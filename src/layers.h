@@ -1,5 +1,4 @@
 // TODO
-// * conv
 // * batchnorm
 #ifndef LAYERS_H
 #define LAYERS_H
