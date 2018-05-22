@@ -79,9 +79,11 @@ class Ndarray {
 
   Ndarray operator*(float a) const;
 
+  // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
                   int64_t s3 = 0);
 
+  // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(const std::vector<int64_t>& shape);
 
   Ndarray T() const;

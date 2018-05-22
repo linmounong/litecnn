@@ -142,6 +142,27 @@ Ndarray Ndarray::reshape(int64_t s0, int64_t s1, int64_t s2, int64_t s3) {
 }
 
 Ndarray Ndarray::reshape(const std::vector<int64_t>& shape) {
+  int64_t autoshape = -1;
+  int64_t size = data_->size();
+  for (int64_t i = 0; i < shape.size(); i++) {
+    int64_t s = shape[i];
+    if (s == 0) {
+      break;
+    }
+    if (s == -1) {
+      assert(autoshape == -1);
+      autoshape = i;
+      continue;
+    }
+    assert(s > 0);
+    assert(size % s == 0);
+    size /= s;
+  }
+  if (autoshape >= 0) {
+    std::vector<int64_t> newshape = shape;
+    newshape[autoshape] = size;
+    return Ndarray(newshape, data_);
+  }
   return Ndarray(shape, data_);
 }
 

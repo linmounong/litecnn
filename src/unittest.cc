@@ -2,6 +2,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "cnn.h"
 #include "layers.h"
 #include "loss.h"
 #include "ndarray.h"
@@ -43,6 +44,8 @@ void TestNdarray() {
   expected[5] = 50;
   r.at(0, 2, 0, 1) = 50;
   assert(expected == data);
+  auto r2 = m.reshape(-1, 3, 1, 2);
+  assert(r == r2);
 
   auto f = r.fork();
   f.at(0, 2, 0, 1) = 60;  // forked data
@@ -164,9 +167,30 @@ void TestLoss() {
   assert(std::abs(dx.sum() - expected.sum()) < 1e-6);
 }
 
+void TestCnn() {
+  SimpleConvNet::Config config;
+  config.input_height = 32;
+  config.input_width = 32;
+  config.input_depth = 3;
+  config.n_filters = 32;
+  config.filter_size = 7;
+  config.hidden_dim = 100;
+  config.weight_scale = 1e-7;
+  config.n_classes = 10;
+  config.reg = 0;
+  SimpleConvNet cnn(config);
+
+  Ndarray x({5, 3, 32, 32}, nullptr);
+  x.gaussian(1);
+  std::vector<int64_t> y = {1, 2, 3, 4, 5};
+  auto loss = cnn.loss(x, y);
+  assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
+}
+
 int main() {
   TestNdarray();
   TestLayers();
   TestLoss();
+  TestCnn();
   std::cout << "all passed" << std::endl;
 }
