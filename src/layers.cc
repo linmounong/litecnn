@@ -5,7 +5,7 @@
 
 #include "ndarray.h"
 
-Affine::Affine(int64_t m, int64_t n, float scale) : w_(m, n), b_(n) {
+Affine::Affine(int64_t m, int64_t n, double scale) : w_(m, n), b_(n) {
   w_.gaussian(scale);
 }
 
@@ -26,7 +26,7 @@ Ndarray Affine::backward(const Ndarray& dout) {
 Ndarray Relu::forward(const Ndarray& x) {
   x_ = x;
   Ndarray out = x.fork();
-  for (float& v : *out.data()) {
+  for (double& v : *out.data()) {
     if (v < 0) {
       v = 0;
     }
@@ -62,7 +62,7 @@ Ndarray MaxPool::forward(const Ndarray& x) {
     for (int64_t i1 = 0; i1 < outt.shape(1); i1++) {
       for (int64_t i2 = 0; i2 < outt.shape(2); i2++) {
         for (int64_t i3 = 0; i3 < outt.shape(3); i3++) {
-          float v = -std::numeric_limits<float>::infinity();
+          double v = -std::numeric_limits<double>::infinity();
           for (int64_t ii = i0 * s_; ii < std::min(i0 * s_ + w_, xt.shape(0));
                ii++) {
             for (int64_t jj = i1 * s_; jj < std::min(i1 * s_ + h_, xt.shape(1));
@@ -143,7 +143,7 @@ Ndarray Conv::forward(const Ndarray& x) {
           for (int64_t i0 = 0; i0 < out.shape(0); i0++) {
             int64_t k0 = i0;
             for (int64_t i1 = 0; i1 < out.shape(1); i1++) {
-              float v = b_.at(i1);
+              double v = b_.at(i1);
               int64_t j0 = i1;
               for (int64_t j1 = 0; j1 < w_.shape(1); j1++) {
                 int64_t k1 = j1;
@@ -185,7 +185,7 @@ Ndarray Conv::backward(const Ndarray& dout) {
           for (int64_t i0 = 0; i0 < dout.shape(0); i0++) {
             int64_t k0 = i0;
             for (int64_t i1 = 0; i1 < dout.shape(1); i1++) {
-              float dv = dout.at(i0, i1, i2, i3);
+              double dv = dout.at(i0, i1, i2, i3);
               int64_t j0 = i1;
               for (int64_t j1 = 0; j1 < w_.shape(1); j1++) {
                 int64_t k1 = j1;

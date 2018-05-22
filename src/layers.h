@@ -9,7 +9,7 @@
 
 class Affine {
  public:
-  Affine(int64_t m, int64_t n, float scale);
+  Affine(int64_t m, int64_t n, double scale);
 
   Ndarray forward(const Ndarray& x);
   Ndarray backward(const Ndarray& dout);

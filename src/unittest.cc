@@ -21,7 +21,7 @@ void TestNdarray() {
       m.at(i, j) = i + j;
     }
   }
-  std::vector<float> expected{
+  std::vector<double> expected{
       0, 1, 2, 3, 4, 5,  //
       1, 2, 3, 4, 5, 6,  //
       2, 3, 4, 5, 6, 7,  //
@@ -177,14 +177,14 @@ void TestLoss() {
   Ndarray x({2, 3}, {1, 2, 3, 4, 5, 6});
   std::vector<int64_t> y = {1, 2};
   Ndarray dx = x.as_zeros();
-  float loss = SoftmaxLoss(x, y, &dx);
+  double loss = SoftmaxLoss(x, y, &dx);
   assert(std::abs(loss - 0.9076059644443804) < 1e-6);
   Ndarray expected({2, 3}, {0.04501529, -0.37763576, 0.33262048, 0.04501529,
                             0.12236424, -0.16737952});
   assert(std::abs(dx.sum() - expected.sum()) < 1e-6);
 }
 
-Ndarray NumericGrad(std::function<float()> func, Ndarray x, float h) {
+Ndarray NumericGrad(std::function<double()> func, Ndarray x, double h) {
   auto dx = x.as_zeros();
   for (int64_t i0 = 0; i0 < x.shape(0); i0++) {
     for (int64_t i1 = 0; i1 < x.shape(1); i1++) {

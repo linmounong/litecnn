@@ -58,7 +58,7 @@ Ndarray SimpleConvNet::backward(const Ndarray& dscores) {
   return dx;
 }
 
-float SimpleConvNet::loss(const Ndarray& x, const std::vector<int64_t>& y) {
+double SimpleConvNet::loss(const Ndarray& x, const std::vector<int64_t>& y) {
   auto scores = forward(x);
   auto dscores = scores.as_zeros();
   auto loss = SoftmaxLoss(scores, y, &dscores);

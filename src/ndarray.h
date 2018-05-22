@@ -11,11 +11,11 @@ class Ndarray {
  public:
   Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0, int64_t s3 = 0);
   // for testing
-  Ndarray(const std::vector<int64_t>& shape, const std::vector<float>& data);
+  Ndarray(const std::vector<int64_t>& shape, const std::vector<double>& data);
   Ndarray(const std::vector<int64_t>& shape,
-          std::shared_ptr<std::vector<float>> data);
+          std::shared_ptr<std::vector<double>> data);
 
-  inline float at(int64_t i = 0, int64_t j = 0, int64_t k = 0,
+  inline double at(int64_t i = 0, int64_t j = 0, int64_t k = 0,
                   int64_t l = 0) const {
     assert(i >= 0);
     assert(i < shape_[0]);
@@ -29,7 +29,7 @@ class Ndarray {
                     l * stride_[3]];
   };
 
-  inline float& at(int64_t i = 0, int64_t j = 0, int64_t k = 0, int64_t l = 0) {
+  inline double& at(int64_t i = 0, int64_t j = 0, int64_t k = 0, int64_t l = 0) {
     assert(i >= 0);
     assert(i < shape_[0]);
     assert(j >= 0);
@@ -42,7 +42,7 @@ class Ndarray {
                     l * stride_[3]];
   };
 
-  inline float at(const std::vector<int64_t>& idx) const {
+  inline double at(const std::vector<int64_t>& idx) const {
     int64_t n = 0;
     for (int64_t i = 0; i < idx.size(); i++) {
       n += idx[i] * stride_[i];
@@ -50,7 +50,7 @@ class Ndarray {
     return (*data_)[n];
   };
 
-  inline float& at(const std::vector<int64_t>& idx) {
+  inline double& at(const std::vector<int64_t>& idx) {
     int64_t n = 0;
     for (int64_t i = 0; i < idx.size(); i++) {
       n += idx[i] * stride_[i];
@@ -60,7 +60,7 @@ class Ndarray {
 
   inline int64_t ndim() const { return ndim_; }
 
-  inline std::vector<float>* data() const { return data_.get(); }
+  inline std::vector<double>* data() const { return data_.get(); }
 
   inline int64_t shape(int64_t dim) const {
     if (dim < 0) {
@@ -81,10 +81,10 @@ class Ndarray {
   Ndarray operator*(const Ndarray& rhs) const;
   Ndarray operator/(const Ndarray& rhs) const;
 
-  Ndarray operator+(float a) const;
-  Ndarray operator-(float a) const;
-  Ndarray operator*(float a) const;
-  Ndarray operator/(float a) const;
+  Ndarray operator+(double a) const;
+  Ndarray operator-(double a) const;
+  Ndarray operator*(double a) const;
+  Ndarray operator/(double a) const;
 
   // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
@@ -97,11 +97,11 @@ class Ndarray {
 
   void zero();
 
-  float sum() const;
+  double sum() const;
 
   Ndarray sum(int64_t dim) const;
 
-  void gaussian(float a);
+  void gaussian(double a);
 
   Ndarray fork() const;
 
@@ -113,11 +113,11 @@ class Ndarray {
 
  private:
   Ndarray binop(const Ndarray& rhs,
-                std::function<float(float, float)> op) const;
-  Ndarray binop(float a, std::function<float(float, float)> op) const;
+                std::function<double(double, double)> op) const;
+  Ndarray binop(double a, std::function<double(double, double)> op) const;
 
   int64_t ndim_ = 0;
-  std::shared_ptr<std::vector<float>> data_;
+  std::shared_ptr<std::vector<double>> data_;
   std::vector<int64_t> shape_;
   std::vector<int64_t> stride_;
 };

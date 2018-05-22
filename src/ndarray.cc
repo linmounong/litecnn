@@ -15,11 +15,11 @@ Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}
 
 Ndarray::Ndarray(const std::vector<int64_t>& shape,
-                 const std::vector<float>& data)
-    : Ndarray(shape, std::make_shared<std::vector<float>>(data)) {}
+                 const std::vector<double>& data)
+    : Ndarray(shape, std::make_shared<std::vector<double>>(data)) {}
 
 Ndarray::Ndarray(const std::vector<int64_t>& shape,
-                 std::shared_ptr<std::vector<float>> data)
+                 std::shared_ptr<std::vector<double>> data)
     : shape_(4, 1), stride_(4, 1) {
   assert(shape.size() <= 4);
   int64_t size = 1;
@@ -35,7 +35,7 @@ Ndarray::Ndarray(const std::vector<int64_t>& shape,
     assert(data->size() == size);
     data_ = data;
   } else {
-    data_ = std::make_shared<std::vector<float>>(size);
+    data_ = std::make_shared<std::vector<double>>(size);
   }
   for (int64_t stride = 1, i = ndim_ - 1; i >= 0; i--) {
     stride_[i] = stride;
@@ -62,7 +62,7 @@ bool Ndarray::operator==(const Ndarray& rhs) const {
 }
 
 Ndarray Ndarray::binop(const Ndarray& rhs,
-                       std::function<float(float, float)> op) const {
+                       std::function<double(double, double)> op) const {
   Ndarray a = T();
   Ndarray b = rhs.T();
   std::vector<int64_t> shape;
@@ -92,19 +92,19 @@ Ndarray Ndarray::binop(const Ndarray& rhs,
 }
 
 Ndarray Ndarray::operator+(const Ndarray& rhs) const {
-  return binop(rhs, std::plus<float>());
+  return binop(rhs, std::plus<double>());
 }
 Ndarray Ndarray::operator-(const Ndarray& rhs) const {
-  return binop(rhs, std::minus<float>());
+  return binop(rhs, std::minus<double>());
 }
 Ndarray Ndarray::operator*(const Ndarray& rhs) const {
-  return binop(rhs, std::multiplies<float>());
+  return binop(rhs, std::multiplies<double>());
 }
 Ndarray Ndarray::operator/(const Ndarray& rhs) const {
-  return binop(rhs, std::divides<float>());
+  return binop(rhs, std::divides<double>());
 }
 
-Ndarray Ndarray::binop(float a, std::function<float(float, float)> op) const {
+Ndarray Ndarray::binop(double a, std::function<double(double, double)> op) const {
   auto ret = this->fork();
   for (auto& v : *ret.data_) {
     v = op(v, a);
@@ -112,20 +112,20 @@ Ndarray Ndarray::binop(float a, std::function<float(float, float)> op) const {
   return ret;
 }
 
-Ndarray Ndarray::operator+(float a) const {
-  return binop(a, std::plus<float>());
+Ndarray Ndarray::operator+(double a) const {
+  return binop(a, std::plus<double>());
 }
-Ndarray Ndarray::operator-(float a) const {
-  return binop(a, std::minus<float>());
+Ndarray Ndarray::operator-(double a) const {
+  return binop(a, std::minus<double>());
 }
-Ndarray Ndarray::operator*(float a) const {
-  return binop(a, std::multiplies<float>());
+Ndarray Ndarray::operator*(double a) const {
+  return binop(a, std::multiplies<double>());
 }
-Ndarray Ndarray::operator/(float a) const {
-  return binop(a, std::divides<float>());
+Ndarray Ndarray::operator/(double a) const {
+  return binop(a, std::divides<double>());
 }
 
-void Ndarray::gaussian(float a) {
+void Ndarray::gaussian(double a) {
   std::minstd_rand rng(1);
   std::normal_distribution<> gaussian(0, a);
   for (int64_t i = 0; i < data_->size(); i++) {
@@ -209,7 +209,7 @@ Ndarray Ndarray::T() const {
 
 Ndarray Ndarray::fork() const {
   Ndarray ret = *this;
-  ret.data_ = std::make_shared<std::vector<float>>(*data_);
+  ret.data_ = std::make_shared<std::vector<double>>(*data_);
   return ret;
 }
 
@@ -219,13 +219,13 @@ void Ndarray::debug() const {
     std::cout << "d:" << i << " shape:" << shape_[i] << " stride:" << stride_[i]
               << std::endl;
   }
-  for (float v : *data_) {
+  for (double v : *data_) {
     std::cout << v << " ";
   }
   std::cout << std::endl;
 }
 
-float Ndarray::sum() const {
+double Ndarray::sum() const {
   return std::accumulate(data_->begin(), data_->end(), 0.0f);
 }
 

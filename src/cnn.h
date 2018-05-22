@@ -14,16 +14,16 @@ class SimpleConvNet {
     int64_t n_filters = 0;
     int64_t filter_size = 0;
     int64_t hidden_dim = 0;
-    float weight_scale = 0;
+    double weight_scale = 0;
     int64_t n_classes = 0;
-    float reg = 0;
+    double reg = 0;
 
     Config& validated();
   };
 
   SimpleConvNet(Config config);
 
-  float loss(const Ndarray& x, const std::vector<int64_t>& y);
+  double loss(const Ndarray& x, const std::vector<int64_t>& y);
 
   Ndarray forward(const Ndarray& x);
   Ndarray backward(const Ndarray& dscores);

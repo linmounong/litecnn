@@ -3,4 +3,4 @@
 
 #include "ndarray.h"
 
-float SoftmaxLoss(const Ndarray& x, const std::vector<int64_t>& y, Ndarray* dx);
+double SoftmaxLoss(const Ndarray& x, const std::vector<int64_t>& y, Ndarray* dx);
