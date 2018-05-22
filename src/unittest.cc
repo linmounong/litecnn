@@ -62,6 +62,11 @@ void TestNdarray() {
   for (int i = 0; i < data.size(); i++) {
     assert(data3[i] == data[i] - 3);
   }
+  auto m4 = m * m;
+  auto& data4 = *m4.data();
+  for (int i = 0; i < data.size(); i++) {
+    assert(data4[i] == data[i] * data[i]);
+  }
 
   Ndarray a({2, 3}, {
                         1, 2, 3,  //
