@@ -1,5 +1,6 @@
 #include <cassert>
 #include <cmath>
+#include <functional>
 #include <iostream>
 
 #include "cnn.h"
@@ -53,8 +54,13 @@ void TestNdarray() {
 
   auto m2 = m * 2;
   auto& data2 = *m2.data();
-  for (int i = 0; i < expected.size(); i++) {
+  for (int i = 0; i < data.size(); i++) {
     assert(data2[i] == data[i] * 2);
+  }
+  auto m3 = m - 3;
+  auto& data3 = *m3.data();
+  for (int i = 0; i < data.size(); i++) {
+    assert(data3[i] == data[i] - 3);
   }
 
   Ndarray a({2, 3}, {

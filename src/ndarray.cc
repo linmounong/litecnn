@@ -104,12 +104,25 @@ Ndarray Ndarray::operator/(const Ndarray& rhs) const {
   return binop(rhs, std::divides<float>());
 }
 
-Ndarray Ndarray::operator*(float a) const {
+Ndarray Ndarray::binop(float a, std::function<float(float, float)> op) const {
   auto ret = this->fork();
   for (auto& v : *ret.data_) {
-    v *= a;
+    v = op(v, a);
   }
   return ret;
+}
+
+Ndarray Ndarray::operator+(float a) const {
+  return binop(a, std::plus<float>());
+}
+Ndarray Ndarray::operator-(float a) const {
+  return binop(a, std::minus<float>());
+}
+Ndarray Ndarray::operator*(float a) const {
+  return binop(a, std::multiplies<float>());
+}
+Ndarray Ndarray::operator/(float a) const {
+  return binop(a, std::divides<float>());
 }
 
 void Ndarray::gaussian(float a) {

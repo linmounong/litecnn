@@ -81,7 +81,10 @@ class Ndarray {
   Ndarray operator*(const Ndarray& rhs) const;
   Ndarray operator/(const Ndarray& rhs) const;
 
+  Ndarray operator+(float a) const;
+  Ndarray operator-(float a) const;
   Ndarray operator*(float a) const;
+  Ndarray operator/(float a) const;
 
   // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
@@ -111,6 +114,7 @@ class Ndarray {
  private:
   Ndarray binop(const Ndarray& rhs,
                 std::function<float(float, float)> op) const;
+  Ndarray binop(float a, std::function<float(float, float)> op) const;
 
   int64_t ndim_ = 0;
   std::shared_ptr<std::vector<float>> data_;
