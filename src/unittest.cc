@@ -63,19 +63,22 @@ void TestNdarray() {
     assert(data3[i] == data[i] - 3);
   }
 
-  Ndarray a({2, 3}, {
-                        1, 2, 3,  //
-                        4, 5, 6,  //
-                    });
-  Ndarray b({3, 2}, {
-                        7, 8,    //
-                        9, 10,   //
-                        11, 12,  //
-                    });
-  Ndarray c({2, 2}, {
-                        58, 64,    //
-                        139, 154,  //
-                    });
+  Ndarray a({2, 3},
+            {
+                1, 2, 3,  //
+                4, 5, 6,  //
+            });
+  Ndarray b({3, 2},
+            {
+                7, 8,    //
+                9, 10,   //
+                11, 12,  //
+            });
+  Ndarray c({2, 2},
+            {
+                58, 64,    //
+                139, 154,  //
+            });
   assert(a.dot(b) == c);
 
   // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
@@ -181,24 +184,85 @@ void TestLoss() {
   assert(std::abs(dx.sum() - expected.sum()) < 1e-6);
 }
 
-void TestCnn() {
-  SimpleConvNet::Config config;
-  config.input_height = 32;
-  config.input_width = 32;
-  config.input_depth = 3;
-  config.n_filters = 32;
-  config.filter_size = 7;
-  config.hidden_dim = 100;
-  config.weight_scale = 1e-7;
-  config.n_classes = 10;
-  config.reg = 0;
-  SimpleConvNet cnn(config);
+Ndarray NumericGrad(std::function<float()> func, Ndarray x, float h) {
+  auto dx = x.as_zeros();
+  for (int64_t i0 = 0; i0 < x.shape(0); i0++) {
+    for (int64_t i1 = 0; i1 < x.shape(1); i1++) {
+      for (int64_t i2 = 0; i2 < x.shape(2); i2++) {
+        for (int64_t i3 = 0; i3 < x.shape(3); i3++) {
+          x.at(i0, i1, i2, i3) += h;
+          auto s1 = func();
+          x.at(i0, i1, i2, i3) -= h + h;
+          auto s2 = func();
+          dx.at(i0, i1, i2, i3) = (s1 - s2) / (h + h);
+          x.at(i0, i1, i2, i3) += h;
+        }
+      }
+    }
+  }
+  return dx;
+}
 
-  Ndarray x({5, 3, 32, 32}, nullptr);
-  x.gaussian(1);
-  std::vector<int64_t> y = {1, 2, 3, 4, 5};
-  auto loss = cnn.loss(x, y);
-  assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
+void TestCnn() {
+  {
+    SimpleConvNet::Config config;
+    config.input_height = 32;
+    config.input_width = 32;
+    config.input_depth = 3;
+    config.n_filters = 32;
+    config.filter_size = 7;
+    config.hidden_dim = 100;
+    config.weight_scale = 1e-3;
+    config.n_classes = 10;
+    config.reg = 0;
+    SimpleConvNet cnn(config);
+
+    Ndarray x({5, config.input_depth, config.input_height, config.input_width},
+              nullptr);
+    x.gaussian(1);
+    std::vector<int64_t> y = {1, 2, 3, 4, 5};
+    auto loss = cnn.loss(x, y);
+    assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
+  }
+  {
+    SimpleConvNet::Config config;
+    config.input_height = 16;
+    config.input_width = 16;
+    config.input_depth = 3;
+    config.n_filters = 3;
+    config.filter_size = 3;
+    config.hidden_dim = 7;
+    config.weight_scale = 1e-2;
+    config.n_classes = 10;
+    config.reg = 0;
+    SimpleConvNet cnn(config);
+
+    Ndarray x({2, config.input_depth, config.input_height, config.input_width},
+              nullptr);
+    x.gaussian(1);
+    std::vector<int64_t> y = {1, 2};
+    auto loss = cnn.loss(x, y);
+
+    Ndarray dscores({x.shape(0), config.n_classes}, nullptr);
+#define TestGrad(target, grad)                                  \
+  do {                                                          \
+    auto grad2 = NumericGrad(                                   \
+        [&x, &y, &cnn, &dscores]() {                            \
+          return SoftmaxLoss(cnn.forward(x), y, &dscores);      \
+        },                                                      \
+        target, 1e-4);                                          \
+    assert(grad.shape() == grad2.shape());                      \
+    auto diff = grad - grad2;                                   \
+    std::cout << "diff " #grad ": " << diff.sum() << std::endl; \
+  } while (0)
+    TestGrad(cnn.conv_.w_, cnn.conv_.dw_);
+    TestGrad(cnn.conv_.b_, cnn.conv_.db_);
+    TestGrad(cnn.affine_.w_, cnn.affine_.dw_);
+    TestGrad(cnn.affine_.b_, cnn.affine_.db_);
+    TestGrad(cnn.affine2_.w_, cnn.affine2_.dw_);
+    TestGrad(cnn.affine2_.b_, cnn.affine2_.db_);
+#undef TestGrad
+  }
 }
 
 int main() {
