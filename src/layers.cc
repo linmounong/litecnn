@@ -53,11 +53,13 @@ Ndarray Relu::backward(const Ndarray& dout) {
 MaxPool::MaxPool(int64_t h, int64_t w, int64_t s) : h_(h), w_(w), s_(s) {}
 
 Ndarray MaxPool::forward(const Ndarray& x) {
+  assert(x.ndim() >= 2);
+  auto outshape = x.shape();
+  outshape[x.ndim() - 1] = (outshape[x.ndim() - 1] + s_ - 1) / s_;
+  outshape[x.ndim() - 2] = (outshape[x.ndim() - 2] + s_ - 1) / s_;
+  Ndarray out(outshape, nullptr);
+  Ndarray outt = out.T();
   Ndarray xt = x.T();
-  auto shape = xt.shape();
-  shape[0] = (xt.shape(0) + s_ - 1) / s_;
-  shape[1] = (xt.shape(1) + s_ - 1) / s_;
-  Ndarray outt(shape, nullptr);
   for (int64_t i0 = 0; i0 < outt.shape(0); i0++) {
     for (int64_t i1 = 0; i1 < outt.shape(1); i1++) {
       for (int64_t i2 = 0; i2 < outt.shape(2); i2++) {
@@ -78,12 +80,13 @@ Ndarray MaxPool::forward(const Ndarray& x) {
   }
   outt_ = outt;
   xt_ = xt;
-  return outt.T();
+  return out;
 }
 
 Ndarray MaxPool::backward(const Ndarray& dout) {
   Ndarray doutt = dout.T();
-  Ndarray dxt = xt_.as_zeros();
+  Ndarray dx = xt_.T().as_zeros();
+  Ndarray dxt = dx.T();
   for (int64_t i0 = 0; i0 < doutt.shape(0); i0++) {
     for (int64_t i1 = 0; i1 < doutt.shape(1); i1++) {
       for (int64_t i2 = 0; i2 < doutt.shape(2); i2++) {
@@ -101,7 +104,7 @@ Ndarray MaxPool::backward(const Ndarray& dout) {
       }
     }
   }
-  return dxt.T();
+  return dx;
 }
 
 Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p)

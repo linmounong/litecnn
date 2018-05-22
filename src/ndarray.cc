@@ -104,7 +104,8 @@ Ndarray Ndarray::operator/(const Ndarray& rhs) const {
   return binop(rhs, std::divides<double>());
 }
 
-Ndarray Ndarray::binop(double a, std::function<double(double, double)> op) const {
+Ndarray Ndarray::binop(double a,
+                       std::function<double(double, double)> op) const {
   auto ret = this->fork();
   for (auto& v : *ret.data_) {
     v = op(v, a);
@@ -170,6 +171,7 @@ Ndarray Ndarray::reshape(int64_t s0, int64_t s1, int64_t s2, int64_t s3) {
 }
 
 Ndarray Ndarray::reshape(const std::vector<int64_t>& shape) {
+  assert(!transposed_);
   int64_t autoshape = -1;
   int64_t size = data_->size();
   for (int64_t i = 0; i < shape.size(); i++) {
@@ -204,6 +206,7 @@ Ndarray Ndarray::T() const {
     ret.stride_[i] = ret.stride_[j];
     ret.stride_[j] = tmp;
   }
+  ret.transposed_ = !ret.transposed_;
   return ret;
 };
 
@@ -214,7 +217,7 @@ Ndarray Ndarray::fork() const {
 }
 
 void Ndarray::debug() const {
-  std::cout << "ndim:" << ndim() << std::endl;
+  std::cout << "ndim:" << ndim() << " transposed:" << transposed_ << std::endl;
   for (int64_t i = 0; i < ndim(); i++) {
     std::cout << "d:" << i << " shape:" << shape_[i] << " stride:" << stride_[i]
               << std::endl;

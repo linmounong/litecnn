@@ -16,7 +16,7 @@ class Ndarray {
           std::shared_ptr<std::vector<double>> data);
 
   inline double at(int64_t i = 0, int64_t j = 0, int64_t k = 0,
-                  int64_t l = 0) const {
+                   int64_t l = 0) const {
     assert(i >= 0);
     assert(i < shape_[0]);
     assert(j >= 0);
@@ -29,7 +29,8 @@ class Ndarray {
                     l * stride_[3]];
   };
 
-  inline double& at(int64_t i = 0, int64_t j = 0, int64_t k = 0, int64_t l = 0) {
+  inline double& at(int64_t i = 0, int64_t j = 0, int64_t k = 0,
+                    int64_t l = 0) {
     assert(i >= 0);
     assert(i < shape_[0]);
     assert(j >= 0);
@@ -120,6 +121,7 @@ class Ndarray {
   std::shared_ptr<std::vector<double>> data_;
   std::vector<int64_t> shape_;
   std::vector<int64_t> stride_;
+  bool transposed_ = false;
 };
 
 #endif  // NDARRAY_H
