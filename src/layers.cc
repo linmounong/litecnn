@@ -107,7 +107,8 @@ Ndarray MaxPool::backward(const Ndarray& dout) {
   return dx;
 }
 
-Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p)
+Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p,
+           double scale)
     : w_(fn, fc, fh, fw),
       b_(fn),
       fh_(fh),
@@ -116,7 +117,7 @@ Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p)
       fn_(fn),
       s_(s),
       p_(p) {
-  w_.gaussian(1);
+  w_.gaussian(scale);
 }
 
 Ndarray Conv::forward(const Ndarray& x) {

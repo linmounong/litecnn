@@ -22,7 +22,8 @@ SimpleConvNet::Config& SimpleConvNet::Config::validated() {
 SimpleConvNet::SimpleConvNet(SimpleConvNet::Config config)
     : config_(config.validated()),
       conv_(config.filter_size, config.filter_size, config.input_depth,
-            config.n_filters, 1, (config.filter_size - 1) / 2),
+            config.n_filters, 1, (config.filter_size - 1) / 2,
+            config.weight_scale),
       pool_(2, 2, 2),
       affine_(config.n_filters * (config.input_height / 2) *
                   (config.input_width / 2),
@@ -64,5 +65,13 @@ double SimpleConvNet::loss(const Ndarray& x, const std::vector<int64_t>& y) {
   auto loss = SoftmaxLoss(scores, y, &dscores);
   auto dx = backward(dscores);
   // reg loss
+  if (config_.reg > 0) {
+    loss += config_.reg * 0.5 *
+            ((conv_.w_ * conv_.w_).sum() + (affine_.w_ * affine_.w_).sum() +
+             (affine2_.w_ * affine2_.w_).sum());
+    conv_.dw_ += conv_.w_ * config_.reg;
+    affine_.dw_ += affine_.w_ * config_.reg;
+    affine2_.dw_ += affine2_.w_ * config_.reg;
+  }
   return loss;
 }

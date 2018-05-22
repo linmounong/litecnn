@@ -62,9 +62,15 @@ bool Ndarray::operator==(const Ndarray& rhs) const {
 }
 
 Ndarray Ndarray::binop(const Ndarray& rhs,
-                       std::function<double(double, double)> op) const {
+                       std::function<double(double, double)> op,
+                       bool inplace) const {
   if (ndim() == rhs.ndim() && shape_ == rhs.shape_) {
-    auto ret = fork();
+    Ndarray ret;
+    if (inplace) {
+      ret = *this;
+    } else {
+      ret = fork();
+    }
     for (int64_t i0 = 0; i0 < shape_[0]; i0++) {
       for (int64_t i1 = 0; i1 < shape_[1]; i1++) {
         for (int64_t i2 = 0; i2 < shape_[2]; i2++) {
@@ -87,6 +93,7 @@ Ndarray Ndarray::binop(const Ndarray& rhs,
     assert(si == 1 || sj == 1 || si == sj);
     shape.push_back(std::max(si, sj));
   }
+  assert(!inplace || shape == this->shape());
   Ndarray ct(shape, nullptr);
   auto c = ct.T();
   for (int64_t i3 = 0; i3 < c.shape_[3]; i3++) {
@@ -108,16 +115,29 @@ Ndarray Ndarray::binop(const Ndarray& rhs,
 }
 
 Ndarray Ndarray::operator+(const Ndarray& rhs) const {
-  return binop(rhs, std::plus<double>());
+  return binop(rhs, std::plus<double>(), false);
 }
 Ndarray Ndarray::operator-(const Ndarray& rhs) const {
-  return binop(rhs, std::minus<double>());
+  return binop(rhs, std::minus<double>(), false);
 }
 Ndarray Ndarray::operator*(const Ndarray& rhs) const {
-  return binop(rhs, std::multiplies<double>());
+  return binop(rhs, std::multiplies<double>(), false);
 }
 Ndarray Ndarray::operator/(const Ndarray& rhs) const {
-  return binop(rhs, std::divides<double>());
+  return binop(rhs, std::divides<double>(), false);
+}
+
+Ndarray Ndarray::operator+=(const Ndarray& rhs) const {
+  return binop(rhs, std::plus<double>(), true);
+}
+Ndarray Ndarray::operator-=(const Ndarray& rhs) const {
+  return binop(rhs, std::minus<double>(), true);
+}
+Ndarray Ndarray::operator*=(const Ndarray& rhs) const {
+  return binop(rhs, std::multiplies<double>(), true);
+}
+Ndarray Ndarray::operator/=(const Ndarray& rhs) const {
+  return binop(rhs, std::divides<double>(), true);
 }
 
 Ndarray Ndarray::binop(double a,

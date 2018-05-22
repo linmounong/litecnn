@@ -48,7 +48,8 @@ class MaxPool {
 
 class Conv {
  public:
-  Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p);
+  Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p,
+       double scale);
   Ndarray forward(const Ndarray& x);      // N,fc,H,W
   Ndarray backward(const Ndarray& dout);  // N,fn,H',W'
 

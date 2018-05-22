@@ -82,6 +82,11 @@ class Ndarray {
   Ndarray operator*(const Ndarray& rhs) const;
   Ndarray operator/(const Ndarray& rhs) const;
 
+  Ndarray operator+=(const Ndarray& rhs) const;
+  Ndarray operator-=(const Ndarray& rhs) const;
+  Ndarray operator*=(const Ndarray& rhs) const;
+  Ndarray operator/=(const Ndarray& rhs) const;
+
   Ndarray operator+(double a) const;
   Ndarray operator-(double a) const;
   Ndarray operator*(double a) const;
@@ -113,8 +118,8 @@ class Ndarray {
   void debug() const;
 
  private:
-  Ndarray binop(const Ndarray& rhs,
-                std::function<double(double, double)> op) const;
+  Ndarray binop(const Ndarray& rhs, std::function<double(double, double)> op,
+                bool inplace) const;
   Ndarray binop(double a, std::function<double(double, double)> op) const;
 
   int64_t ndim_ = 0;

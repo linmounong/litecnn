@@ -153,8 +153,9 @@ void TestLayers() {
             3,   // fw
             1,   // fc
             6,   // fn
-            1,   // s
-            1);  // p
+            1,   // stride
+            1,   // pad
+            1);  // scale
   x = Ndarray(
       {2, 1, 4, 5},
       {
@@ -217,14 +218,19 @@ void TestCnn() {
     config.weight_scale = 1e-3;
     config.n_classes = 10;
     config.reg = 0;
-    SimpleConvNet cnn(config);
 
     Ndarray x({5, config.input_depth, config.input_height, config.input_width},
               nullptr);
     x.gaussian(1);
     std::vector<int64_t> y = {1, 2, 3, 4, 5};
-    auto loss = cnn.loss(x, y);
+
+    auto loss = SimpleConvNet(config).loss(x, y);
     assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
+
+    config.reg = 0.5;
+    auto loss2 = SimpleConvNet(config).loss(x, y);
+    assert(loss2 > loss);
+    assert(loss2 < loss + 1);
   }
   {
     SimpleConvNet::Config config;
