@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -76,6 +77,9 @@ class Ndarray {
 
   // broadcast
   Ndarray operator+(const Ndarray& rhs) const;
+  Ndarray operator-(const Ndarray& rhs) const;
+  Ndarray operator*(const Ndarray& rhs) const;
+  Ndarray operator/(const Ndarray& rhs) const;
 
   Ndarray operator*(float a) const;
 
@@ -105,6 +109,9 @@ class Ndarray {
   void debug() const;
 
  private:
+  Ndarray binop(const Ndarray& rhs,
+                std::function<float(float, float)> op) const;
+
   int64_t ndim_ = 0;
   std::shared_ptr<std::vector<float>> data_;
   std::vector<int64_t> shape_;

@@ -82,6 +82,12 @@ void TestNdarray() {
   //
   //        [[11, 13, 15],
   //         [14, 16, 18]]])
+  // >>> a-b
+  // array([[[-6, -6, -6],
+  //         [-9, -9, -9]],
+  //
+  //        [[-3, -3, -3],
+  //         [-6, -6, -6]]])
 
   a = a.reshape(2, 1, 3);
   b = b.reshape(1, 2, 3);
@@ -89,6 +95,8 @@ void TestNdarray() {
   assert(a + b == c);
   b = b.reshape(2, 3);
   assert(a + b == c);
+  auto d = Ndarray({2, 2, 3}, {-6, -6, -6, -9, -9, -9, -3, -3, -3, -6, -6, -6});
+  assert(a - b == d);
 
   auto z = a.as_zeros();
   assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));

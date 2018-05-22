@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <numeric>
@@ -60,7 +61,8 @@ bool Ndarray::operator==(const Ndarray& rhs) const {
   return true;
 }
 
-Ndarray Ndarray::operator+(const Ndarray& rhs) const {
+Ndarray Ndarray::binop(const Ndarray& rhs,
+                       std::function<float(float, float)> op) const {
   Ndarray a = T();
   Ndarray b = rhs.T();
   std::vector<int64_t> shape;
@@ -75,18 +77,31 @@ Ndarray Ndarray::operator+(const Ndarray& rhs) const {
     for (int64_t i1 = 0; i1 < ret.shape_[1]; i1++) {
       for (int64_t i2 = 0; i2 < ret.shape_[2]; i2++) {
         for (int64_t i3 = 0; i3 < ret.shape_[3]; i3++) {
-          ret.at(i0, i1, i2, i3) =
+          ret.at(i0, i1, i2, i3) = op(
               a.at(std::min(i0, a.shape_[0] - 1), std::min(i1, a.shape_[1] - 1),
                    std::min(i2, a.shape_[2] - 1),
-                   std::min(i3, a.shape_[3] - 1)) +
+                   std::min(i3, a.shape_[3] - 1)),
               b.at(std::min(i0, b.shape_[0] - 1), std::min(i1, b.shape_[1] - 1),
                    std::min(i2, b.shape_[2] - 1),
-                   std::min(i3, b.shape_[3] - 1));
+                   std::min(i3, b.shape_[3] - 1)));
         }
       }
     }
   }
   return ret.T();
+}
+
+Ndarray Ndarray::operator+(const Ndarray& rhs) const {
+  return binop(rhs, std::plus<float>());
+}
+Ndarray Ndarray::operator-(const Ndarray& rhs) const {
+  return binop(rhs, std::minus<float>());
+}
+Ndarray Ndarray::operator*(const Ndarray& rhs) const {
+  return binop(rhs, std::multiplies<float>());
+}
+Ndarray Ndarray::operator/(const Ndarray& rhs) const {
+  return binop(rhs, std::divides<float>());
 }
 
 Ndarray Ndarray::operator*(float a) const {
