@@ -265,7 +265,12 @@ void Ndarray::debug() const {
 }
 
 double Ndarray::sum() const {
-  return std::accumulate(data_->begin(), data_->end(), 0.0f);
+  return std::accumulate(data_->begin(), data_->end(), 0.0);
+}
+
+double Ndarray::max() const {
+  assert(!data_->empty());
+  return *std::max_element(data_->begin(), data_->end());
 }
 
 std::vector<int64_t> Ndarray::shape() const {

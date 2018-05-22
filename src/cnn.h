@@ -1,3 +1,6 @@
+// TODO
+// * train
+// * predict
 #include <vector>
 
 #include "layers.h"

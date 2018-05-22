@@ -103,6 +103,8 @@ class Ndarray {
 
   void zero();
 
+  double max() const;
+
   double sum() const;
 
   Ndarray sum(int64_t dim) const;

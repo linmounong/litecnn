@@ -252,16 +252,16 @@ void TestCnn() {
     auto loss = cnn.loss(x, y);
 
     Ndarray dscores({x.shape(0), config.n_classes}, nullptr);
-#define TestGrad(target, grad)                                  \
-  do {                                                          \
-    auto grad2 = NumericGrad(                                   \
-        [&x, &y, &cnn, &dscores]() {                            \
-          return SoftmaxLoss(cnn.forward(x), y, &dscores);      \
-        },                                                      \
-        target, 1e-4);                                          \
-    assert(grad.shape() == grad2.shape());                      \
-    auto diff = grad - grad2;                                   \
-    std::cout << "diff " #grad ": " << diff.sum() << std::endl; \
+#define TestGrad(target, grad)                                      \
+  do {                                                              \
+    auto grad2 = NumericGrad(                                       \
+        [&x, &y, &cnn, &dscores]() {                                \
+          return SoftmaxLoss(cnn.forward(x), y, &dscores);          \
+        },                                                          \
+        target, 1e-4);                                              \
+    assert(grad.shape() == grad2.shape());                          \
+    auto diff = grad - grad2;                                       \
+    std::cout << "max diff " #grad ": " << diff.max() << std::endl; \
   } while (0)
     TestGrad(cnn.conv_.w_, cnn.conv_.dw_);
     TestGrad(cnn.conv_.b_, cnn.conv_.db_);
