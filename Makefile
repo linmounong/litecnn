@@ -1,17 +1,17 @@
 .PHONY: all clean test
 
 CXX = c++
-CXXFLAGS = -pthread -std=c++11 -march=native
+FLAGS = -pthread -std=c++11 -march=native -O3 ${CXXFLAGS}
 OBJS = layers.o ndarray.o loss.o cnn.o
 
 all: $(OBJS)
 
 %.o: src/%.cc
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(FLAGS) -c $<
 
 bin/unittest: src/unittest.cc $(OBJS)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(FLAGS) -o $@ $^
 
 clean:
 	rm -rf *.o bin
