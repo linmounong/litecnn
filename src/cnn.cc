@@ -1,5 +1,6 @@
 #include "cnn.h"
 
+#include <iostream>
 #include <vector>
 
 #include "layers.h"
@@ -59,7 +60,7 @@ Ndarray SimpleConvNet::backward(const Ndarray& dscores) {
   return dx;
 }
 
-double SimpleConvNet::loss(const Ndarray& x, const std::vector<int64_t>& y) {
+double SimpleConvNet::loss(const Ndarray& x, const int64_t* y) {
   auto scores = forward(x);
   auto dscores = scores.as_zeros();
   auto loss = SoftmaxLoss(scores, y, &dscores);
@@ -74,4 +75,38 @@ double SimpleConvNet::loss(const Ndarray& x, const std::vector<int64_t>& y) {
     affine2_.dw_ += affine2_.w_ * config_.reg;
   }
   return loss;
+}
+
+void SimpleConvNet::train(const Ndarray& x, std::vector<int64_t>& y,
+                          const Ndarray& x_val, std::vector<int64_t>& y_val,
+                          int epochs, int64_t batch, double lr,
+                          int64_t eval_every) {
+  assert(x.ndim() == 4);
+  assert(x.shape(0) == y.size());
+  assert(x_val.ndim() == 4);
+  assert(x_val.shape(0) == y_val.size());
+  int64_t N = y.size();
+  for (int epoch = 0; epoch < epochs; epoch++) {
+    for (int64_t i = 0; i < N; i += batch) {
+      auto x_batch = x.slice(i, std::min(batch, N - i));
+      const int64_t* y_batch = &y[i];
+      double batchloss = loss(x_batch, y_batch);
+#define SGD(layer, param) \
+  layer.d##param *= lr;   \
+  layer.param -= layer.d##param
+      SGD(conv_, w_);
+      SGD(conv_, b_);
+      SGD(affine_, w_);
+      SGD(affine_, b_);
+      SGD(affine2_, w_);
+      SGD(affine2_, b_);
+#undef SGD
+      losses_.push_back(batchloss);
+      iter_++;
+      if (iter_ % eval_every == 0) {
+        std::cout << "iter:" << iter_ << " epoch:" << epoch
+                  << " loss:" << batchloss << std::endl;
+      }
+    }
+  }
 }

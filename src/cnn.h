@@ -26,10 +26,14 @@ class SimpleConvNet {
 
   SimpleConvNet(Config config);
 
-  double loss(const Ndarray& x, const std::vector<int64_t>& y);
+  double loss(const Ndarray& x, const int64_t* y);
 
   Ndarray forward(const Ndarray& x);
   Ndarray backward(const Ndarray& dscores);
+
+  void train(const Ndarray& x, std::vector<int64_t>& y, const Ndarray& x_val,
+             std::vector<int64_t>& y_val, int epochs, int64_t batch, double lr,
+             int64_t eval_every);
 
   // layers
   Conv conv_;
@@ -42,4 +46,7 @@ class SimpleConvNet {
  private:
   Config config_;
   std::vector<int64_t> out3_shape_;
+
+  int64_t iter_ = 0;
+  std::vector<double> losses_;
 };

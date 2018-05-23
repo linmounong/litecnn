@@ -112,9 +112,8 @@ void TestNdarray() {
   auto z = a.as_zeros();
   assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));
 
-  auto s = a.reshape(3, 2).slice(1, 1);
-  s.debug();
-  assert(s == Ndarray({1, 2}, {3, 4}));
+  auto s = a.reshape(3, 2).slice(1, 2);
+  assert(s == Ndarray({2, 2}, {3, 4, 5, 6}));
 }
 
 void TestLayers() {
@@ -274,6 +273,33 @@ void TestCnn() {
     TestGrad(cnn.affine2_.w_, cnn.affine2_.dw_);
     TestGrad(cnn.affine2_.b_, cnn.affine2_.db_);
 #undef TestGrad
+  }
+  {
+    SimpleConvNet::Config config;
+    config.input_height = 32;
+    config.input_width = 32;
+    config.input_depth = 3;
+    config.n_filters = 7;
+    config.filter_size = 3;
+    config.hidden_dim = 20;
+    config.weight_scale = 1e-3;
+    config.n_classes = 10;
+    config.reg = 0.1;
+    SimpleConvNet cnn(config);
+
+    Ndarray x(
+        {100, config.input_depth, config.input_height, config.input_width},
+        nullptr);
+    x.gaussian(1);
+    std::vector<int64_t> y(100);
+    cnn.train(x, y,  // train data
+              x, y,  // eval data
+              10,    // epochs
+              40,    // batch
+              0.01,  // lr
+              2);    // every_every
+
+    std::cout << "check if the model overfits" << std::endl;
   }
 }
 

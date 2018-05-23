@@ -33,7 +33,6 @@ Ndarray::Ndarray(const std::vector<int64_t>& shape,
   }
   if (data) {
     assert(data->size() >= size);
-    assert(data->size() % size == 0);
     data_ = data;
   } else {
     data_ = std::make_shared<std::vector<double>>(size);
