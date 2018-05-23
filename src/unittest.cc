@@ -182,7 +182,7 @@ void TestLayers() {
 
 void TestLoss() {
   Ndarray x({2, 3}, {1, 2, 3, 4, 5, 6});
-  std::vector<int64_t> y = {1, 2};
+  int64_t y[2] = {1, 2};
   Ndarray dx = x.as_zeros();
   double loss = SoftmaxLoss(x, y, &dx);
   assert(std::abs(loss - 0.9076059644443804) < 1e-6);
@@ -226,7 +226,7 @@ void TestCnn() {
     Ndarray x({5, config.input_depth, config.input_height, config.input_width},
               nullptr);
     x.gaussian(1);
-    std::vector<int64_t> y = {1, 2, 3, 4, 5};
+    int64_t y[] = {1, 2, 3, 4, 5};
 
     auto loss = SimpleConvNet(config).loss(x, y);
     assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
@@ -252,14 +252,14 @@ void TestCnn() {
     Ndarray x({2, config.input_depth, config.input_height, config.input_width},
               nullptr);
     x.gaussian(1);
-    std::vector<int64_t> y = {1, 2};
+    int64_t y[2] = {1, 2};
     auto loss = cnn.loss(x, y);
 
     Ndarray dscores({x.shape(0), config.n_classes}, nullptr);
 #define TestGrad(target, grad)                                      \
   do {                                                              \
     auto grad2 = NumericGrad(                                       \
-        [&x, &y, &cnn, &dscores]() {                                \
+        [&x, y, &cnn, &dscores]() {                                 \
           return SoftmaxLoss(cnn.forward(x), y, &dscores);          \
         },                                                          \
         target, 1e-4);                                              \

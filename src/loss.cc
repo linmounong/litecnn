@@ -6,13 +6,11 @@
 
 #include "ndarray.h"
 
-double SoftmaxLoss(const Ndarray& x, const std::vector<int64_t>& y,
-                  Ndarray* dx) {
+double SoftmaxLoss(const Ndarray& x, const int64_t* y, Ndarray* dx) {
   assert(dx != nullptr);
   assert(x.ndim() == 2);
   int64_t n = x.shape(0);
   int64_t c = x.shape(1);
-  assert(n == y.size());
   double loss = 0;
   for (int64_t i = 0; i < n; i++) {
     double max = x.at(i, 0);
