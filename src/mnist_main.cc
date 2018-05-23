@@ -54,6 +54,8 @@ int main() {
   config.reg = 0.5;
   SimpleConvNet cnn(config);
 
+  // Using test dataset as valication here for simplicity. It's fine here since
+  // the valication dataset is not used for choosing the final model.
   cnn.train(x, &y[0],                           // train data
             x_test.slice(0, 1000), &y_test[0],  // eval data
             2,                                  // epochs

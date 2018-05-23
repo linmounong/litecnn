@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include "layers.h"
@@ -113,11 +114,9 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
       }
     }
   }
-  double train_accuracy = eval(x, y);
   double val_accuracy = eval(x_val, y_val);
-  std::cout << "final train_accuracy:" << train_accuracy
-            << " val_accuracy:" << val_accuracy << " loss:" << *losses_.rbegin()
-            << std::endl;
+  std::cout << "final val accuracy:" << val_accuracy
+            << " loss:" << *losses_.rbegin() << std::endl;
 }
 
 void SimpleConvNet::predict(const Ndarray& x, int64_t* y) {
@@ -140,8 +139,8 @@ void SimpleConvNet::predict(const Ndarray& x, int64_t* y) {
 
 double SimpleConvNet::eval(const Ndarray& x, const int64_t* y) {
   int64_t size = x.shape(0);
-  int64_t ypred[size];
-  predict(x, ypred);
+  std::unique_ptr<int64_t[]> ypred(new int64_t[size]);
+  predict(x, ypred.get());
   double match = 0.0;
   for (int64_t i = 0; i < size; i++) {
     if (y[i] == ypred[i]) {

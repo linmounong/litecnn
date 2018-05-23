@@ -10,3 +10,5 @@ make train
 # unit test
 make test
 ```
+
+checkout `train.log` for the latest training log
