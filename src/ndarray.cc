@@ -32,7 +32,8 @@ Ndarray::Ndarray(const std::vector<int64_t>& shape,
     ndim_ += 1;
   }
   if (data) {
-    assert(data->size() == size);
+    assert(data->size() >= size);
+    assert(data->size() % size == 0);
     data_ = data;
   } else {
     data_ = std::make_shared<std::vector<double>>(size);
@@ -253,7 +254,8 @@ Ndarray Ndarray::fork() const {
 }
 
 void Ndarray::debug() const {
-  std::cout << "ndim:" << ndim() << " transposed:" << transposed_ << std::endl;
+  std::cout << "ndim:" << ndim() << " transposed:" << transposed_
+            << " offset:" << offset_ << std::endl;
   for (int64_t i = 0; i < ndim(); i++) {
     std::cout << "d:" << i << " shape:" << shape_[i] << " stride:" << stride_[i]
               << std::endl;
@@ -311,4 +313,21 @@ Ndarray Ndarray::as_zeros() const {
     shape.push_back(shape_[i]);
   }
   return Ndarray(shape, nullptr);
+}
+
+Ndarray Ndarray::slice(int64_t i, int64_t n) const {
+  assert(!transposed_);
+  auto newshape = shape();
+  auto s0 = newshape[0];
+  if (n < 0) {
+    n += s0;
+  }
+  assert(i >= 0);
+  assert(i < s0);
+  assert(i + n > 0);
+  assert(i + n <= s0);
+  newshape[0] = n;
+  Ndarray ret(newshape, data_);
+  ret.offset_ += i * stride_[0];
+  return ret;
 }

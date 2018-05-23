@@ -111,6 +111,10 @@ void TestNdarray() {
 
   auto z = a.as_zeros();
   assert(z == Ndarray({2, 1, 3}, {0, 0, 0, 0, 0, 0}));
+
+  auto s = a.reshape(3, 2).slice(1, 1);
+  s.debug();
+  assert(s == Ndarray({1, 2}, {3, 4}));
 }
 
 void TestLayers() {
