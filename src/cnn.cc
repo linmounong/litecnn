@@ -1,5 +1,6 @@
 #include "cnn.h"
 
+#include <cassert>
 #include <iostream>
 #include <vector>
 
@@ -77,10 +78,10 @@ double SimpleConvNet::loss(const Ndarray& x, const int64_t* y) {
   return loss;
 }
 
-void SimpleConvNet::train(const Ndarray& x, std::vector<int64_t>& y,
-                          const Ndarray& x_val, std::vector<int64_t>& y_val,
-                          int epochs, int64_t batch, double lr,
-                          int64_t eval_every) {
+void SimpleConvNet::train(const Ndarray& x, const std::vector<int64_t>& y,
+                          const Ndarray& x_val,
+                          const std::vector<int64_t>& y_val, int epochs,
+                          int64_t batch, double lr, int64_t eval_every) {
   assert(x.ndim() == 4);
   assert(x.shape(0) == y.size());
   assert(x_val.ndim() == 4);
@@ -88,7 +89,8 @@ void SimpleConvNet::train(const Ndarray& x, std::vector<int64_t>& y,
   int64_t N = y.size();
   for (int epoch = 0; epoch < epochs; epoch++) {
     for (int64_t i = 0; i < N; i += batch) {
-      auto x_batch = x.slice(i, std::min(batch, N - i));
+      auto N_batch = std::min(batch, N - i);
+      auto x_batch = x.slice(i, N_batch);
       const int64_t* y_batch = &y[i];
       double batchloss = loss(x_batch, y_batch);
 #define SGD(layer, param) \
@@ -103,10 +105,50 @@ void SimpleConvNet::train(const Ndarray& x, std::vector<int64_t>& y,
 #undef SGD
       losses_.push_back(batchloss);
       iter_++;
-      if (iter_ % eval_every == 0) {
+      if (eval_every > 0 && iter_ % eval_every == 0) {
+        double train_accuracy = eval(x, &y[0]);
+        double val_accuracy = eval(x_val, &y_val[0]);
         std::cout << "iter:" << iter_ << " epoch:" << epoch
-                  << " loss:" << batchloss << std::endl;
+                  << " train_accuracy:" << train_accuracy
+                  << " val_accuracy:" << val_accuracy << " loss:" << batchloss
+                  << std::endl;
       }
     }
   }
+  double train_accuracy = eval(x, &y[0]);
+  double val_accuracy = eval(x_val, &y_val[0]);
+  std::cout << "final train_accuracy:" << train_accuracy
+            << " val_accuracy:" << val_accuracy << " loss:" << *losses_.rbegin()
+            << std::endl;
+}
+
+void SimpleConvNet::predict(const Ndarray& x, int64_t* y) {
+  auto scores = forward(x);
+  assert(scores.ndim() == 2);
+  int64_t size = scores.shape(0);
+  int64_t classes = scores.shape(1);
+  for (int64_t i = 0; i < size; i++) {
+    int64_t argmax = 0;
+    double max = scores.at(i, 0);
+    for (int64_t j = 1; j < classes; j++) {
+      if (max < scores.at(i, j)) {
+        max = scores.at(i, j);
+        argmax = j;
+      }
+    }
+    y[i] = argmax;
+  }
+}
+
+double SimpleConvNet::eval(const Ndarray& x, const int64_t* y) {
+  int64_t size = x.shape(0);
+  int64_t ypred[size];
+  predict(x, ypred);
+  double match = 0.0;
+  for (int64_t i = 0; i < size; i++) {
+    if (y[i] == ypred[i]) {
+      match += 1.0;
+    }
+  }
+  return match / size;
 }

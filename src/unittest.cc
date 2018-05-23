@@ -68,19 +68,22 @@ void TestNdarray() {
     assert(data4[i] == data[i] * data[i]);
   }
 
-  Ndarray a({2, 3}, {
-                        1, 2, 3,  //
-                        4, 5, 6,  //
-                    });
-  Ndarray b({3, 2}, {
-                        7, 8,    //
-                        9, 10,   //
-                        11, 12,  //
-                    });
-  Ndarray c({2, 2}, {
-                        58, 64,    //
-                        139, 154,  //
-                    });
+  Ndarray a({2, 3},
+            {
+                1, 2, 3,  //
+                4, 5, 6,  //
+            });
+  Ndarray b({3, 2},
+            {
+                7, 8,    //
+                9, 10,   //
+                11, 12,  //
+            });
+  Ndarray c({2, 2},
+            {
+                58, 64,    //
+                139, 154,  //
+            });
   assert(a.dot(b) == c);
 
   // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
@@ -284,20 +287,23 @@ void TestCnn() {
     config.hidden_dim = 20;
     config.weight_scale = 1e-3;
     config.n_classes = 10;
-    config.reg = 0.1;
+    config.reg = 0.0;
     SimpleConvNet cnn(config);
 
-    Ndarray x(
-        {100, config.input_depth, config.input_height, config.input_width},
-        nullptr);
+    int64_t N = 100;
+    Ndarray x({N, config.input_depth, config.input_height, config.input_width},
+              nullptr);
     x.gaussian(1);
-    std::vector<int64_t> y(100);
+    std::vector<int64_t> y(N);
+    for (int64_t i = 0; i < N; i++) {
+      y[i] = (i * i) % N;
+    }
     cnn.train(x, y,  // train data
               x, y,  // eval data
               10,    // epochs
-              40,    // batch
-              0.01,  // lr
-              2);    // every_every
+              20,    // batch
+              0.1,   // lr
+              10);   // eval_every
 
     std::cout << "check if the model overfits" << std::endl;
   }
