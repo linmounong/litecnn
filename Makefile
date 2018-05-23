@@ -1,4 +1,4 @@
-.PHONY: all clean test
+.PHONY: all clean test data
 
 CXX = c++
 FLAGS = -pthread -std=c++11 -march=native -O3 ${CXXFLAGS}
@@ -18,3 +18,9 @@ clean:
 
 test: bin/unittest
 	bin/unittest
+
+data: mnist/train-images-idx3-ubyte mnist/train-labels-idx1-ubyte mnist/t10k-images-idx3-ubyte mnist/t10k-labels-idx1-ubyte
+
+mnist/%:
+	@mkdir -p mnist
+	wget -O $@.gz http://yann.lecun.com/exdb/$@.gz && gunzip $@.gz
