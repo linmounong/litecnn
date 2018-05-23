@@ -47,17 +47,20 @@ int main() {
   config.input_width = 28;
   config.input_depth = 1;
   config.n_filters = 10;
-  config.filter_size = 3;
-  config.hidden_dim = 20;
+  config.filter_size = 5;
+  config.hidden_dim = 50;
   config.weight_scale = 1e-2;
   config.n_classes = 10;
-  config.reg = 0;
+  config.reg = 0.5;
   SimpleConvNet cnn(config);
 
-  cnn.train(x.slice(0, 100), &y[0],             // train data
+  cnn.train(x, &y[0],                           // train data
             x_test.slice(0, 1000), &y_test[0],  // eval data
-            20,                                 // epochs
-            50,                                 // batch
+            2,                                  // epochs
+            100,                                // batch
             0.01,                               // lr
-            0);                                 // eval_every
+            10,                                 // log_every
+            100);                               // eval_every
+  std::cout << "final test accuracy " << cnn.eval(x_test, &y_test[0])
+            << std::endl;
 }

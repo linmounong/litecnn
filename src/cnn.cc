@@ -81,11 +81,11 @@ double SimpleConvNet::loss(const Ndarray& x, const int64_t* y) {
 void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
                           const Ndarray& x_val, const int64_t* y_val,
                           int epochs, int64_t batch, double lr,
-                          int64_t eval_every) {
+                          int64_t log_every, int64_t eval_every) {
   assert(x.ndim() == 4);
   assert(x_val.ndim() == 4);
   int64_t N = x.shape(0);
-  for (int epoch = 0; epoch < epochs; epoch++) {
+  for (int ep = 0; ep < epochs; ep++) {
     for (int64_t i = 0; i < N; i += batch) {
       auto N_batch = std::min(batch, N - i);
       auto x_batch = x.slice(i, N_batch);
@@ -102,9 +102,11 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
       SGD(affine2_, b_);
 #undef SGD
       losses_.push_back(batchloss);
-      std::cout << "iter:" << iter_ << " epoch:" << epoch
-                << " loss:" << batchloss << std::endl;
       iter_++;
+      if (log_every > 0 && iter_ % log_every == 0) {
+        std::cout << "iter:" << iter_ << " epoch:" << ep + 1
+                  << " loss:" << batchloss << std::endl;
+      }
       if (eval_every > 0 && iter_ % eval_every == 0) {
         double val_accuracy = eval(x_val, y_val);
         std::cout << "val_accuracy:" << val_accuracy << std::endl;

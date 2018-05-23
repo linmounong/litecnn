@@ -30,7 +30,7 @@ class SimpleConvNet {
 
   void train(const Ndarray& x, const int64_t* y, const Ndarray& x_val,
              const int64_t* y_val, int epochs, int64_t batch, double lr,
-             int64_t eval_every);
+             int64_t log_every, int64_t eval_every);
   void predict(const Ndarray& x, int64_t* y);
   double eval(const Ndarray& x, const int64_t* y);
 

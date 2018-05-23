@@ -1,9 +1,9 @@
 .PHONY: all clean test data train
 
 CXX = c++
-FLAGS = -pthread -std=c++11 -march=native -O3 ${CXXFLAGS} -I third_party/mnist/include
+FLAGS = -std=c++11 -march=native -O3 ${CXXFLAGS} -I third_party/mnist/include
 OBJS = layers.o ndarray.o loss.o cnn.o
-BINS = bin/unittest bin/mnist_main
+BINS = bin/unittest_main bin/mnist_main
 
 all: $(OBJS) $(BINS)
 
@@ -17,8 +17,8 @@ bin/%: src/%.cc $(OBJS)
 clean:
 	rm -rf *.o bin
 
-test: bin/unittest
-	bin/unittest
+test: bin/unittest_main
+	bin/unittest_main
 
 data: mnist/train-images-idx3-ubyte mnist/train-labels-idx1-ubyte mnist/t10k-images-idx3-ubyte mnist/t10k-labels-idx1-ubyte
 

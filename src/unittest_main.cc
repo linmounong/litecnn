@@ -339,6 +339,7 @@ void TestCnn() {
               10,    // epochs
               20,    // batch
               0.01,  // lr
+              1,     // log_every
               10);   // eval_every
 
     std::cout << "check if the model overfits" << std::endl;
