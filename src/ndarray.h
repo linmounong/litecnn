@@ -9,7 +9,8 @@
 
 class Ndarray {
  public:
-  Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0, int64_t s3 = 0);
+  explicit Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
+                   int64_t s3 = 0);
   // for testing
   Ndarray(const std::vector<int64_t>& shape, const std::vector<double>& data);
   Ndarray(const std::vector<int64_t>& shape,
@@ -91,6 +92,10 @@ class Ndarray {
   Ndarray operator-(double a) const;
   Ndarray operator*(double a) const;
   Ndarray operator/(double a) const;
+  Ndarray operator+=(double a) const;
+  Ndarray operator-=(double a) const;
+  Ndarray operator*=(double a) const;
+  Ndarray operator/=(double a) const;
 
   // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
@@ -124,7 +129,8 @@ class Ndarray {
  private:
   Ndarray binop(const Ndarray& rhs, std::function<double(double, double)> op,
                 bool inplace) const;
-  Ndarray binop(double a, std::function<double(double, double)> op) const;
+  Ndarray binop(double a, std::function<double(double, double)> op,
+                bool inplace) const;
 
   int64_t ndim_ = 0;
   std::shared_ptr<std::vector<double>> data_;

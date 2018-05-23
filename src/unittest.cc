@@ -8,6 +8,25 @@
 #include "loss.h"
 #include "ndarray.h"
 
+Ndarray NumericGrad(std::function<double()> func, Ndarray x, double h) {
+  auto dx = x.as_zeros();
+  for (int64_t i0 = 0; i0 < x.shape(0); i0++) {
+    for (int64_t i1 = 0; i1 < x.shape(1); i1++) {
+      for (int64_t i2 = 0; i2 < x.shape(2); i2++) {
+        for (int64_t i3 = 0; i3 < x.shape(3); i3++) {
+          x.at(i0, i1, i2, i3) += h;
+          auto s1 = func();
+          x.at(i0, i1, i2, i3) -= h + h;
+          auto s2 = func();
+          dx.at(i0, i1, i2, i3) = (s1 - s2) / (h + h);
+          x.at(i0, i1, i2, i3) += h;
+        }
+      }
+    }
+  }
+  return dx;
+}
+
 void TestNdarray() {
   Ndarray m(3, 6);
   auto& data = *m.data();
@@ -120,6 +139,15 @@ void TestNdarray() {
 }
 
 void TestLayers() {
+#define TEST_LAYER(layer, target, grad)                                        \
+  do {                                                                         \
+    auto grad2 = NumericGrad(                                                  \
+        [&layer, &x, &dout]() { return (layer.forward(x) * dout).sum(); },     \
+        target, 1e-4);                                                         \
+    assert(grad.shape() == grad2.shape());                                     \
+    auto diff = grad - grad2;                                                  \
+    std::cout << "max " #layer " diff " #grad ": " << diff.max() << std::endl; \
+  } while (0)
   Affine affine(3, 4, 1e-3);
   Ndarray x(2, 3);
   x.gaussian(1);
@@ -130,6 +158,9 @@ void TestLayers() {
   auto dx = affine.backward(dout);
   assert(dx.shape(0) == 2);
   assert(dx.shape(1) == 3);
+  TEST_LAYER(affine, x, dx);
+  TEST_LAYER(affine, affine.w_, affine.dw_);
+  TEST_LAYER(affine, affine.b_, affine.db_);
 
   Relu relu;
   x = Ndarray({2, 2}, {-1, 1, 0, 2});
@@ -138,13 +169,16 @@ void TestLayers() {
   dout = Ndarray({2, 2}, {5, 6, 7, 8});
   dx = relu.backward(dout);
   assert(dx == Ndarray({2, 2}, {0, 6, 0, 8}));
+  TEST_LAYER(relu, x, dx);
 
   MaxPool pool1(2, 2, 2);
   x = Ndarray({3, 3}, {1, 2, 3, 4, 5, 6, 7, 8, 9});
   out = pool1.forward(x);
   assert(out == Ndarray({2, 2}, {5, 6, 8, 9}));
-  dx = pool1.backward(out);
-  assert(dx == Ndarray({3, 3}, {0, 0, 0, 0, 5, 6, 0, 8, 9}));
+  dout = out.as_zeros();
+  dout.gaussian(2);
+  dx = pool1.backward(dout);
+  TEST_LAYER(pool1, x, dx);
 
   MaxPool poo2(2, 2, 2);
   x = Ndarray({2, 3, 3},
@@ -175,41 +209,43 @@ void TestLayers() {
           0.51262869, 0.82402136, 0.1498909,  0.4061689,  0.24924964,
       });
   out = conv.forward(x);
-  assert((std::vector<int64_t>{2, 6, 4, 5} == out.shape()));
+  // assert((std::vector<int64_t>{1, 6, 4, 5} == out.shape()));
   dout = out.as_zeros();
   dout.gaussian(1);
   dx = conv.backward(dout);
   assert(dx.shape() == x.shape());
+  TEST_LAYER(conv, x, dx);
+  TEST_LAYER(conv, conv.w_, conv.dw_);
+  TEST_LAYER(conv, conv.b_, conv.db_);
+#undef TEST_LAYER
 }
 
 void TestLoss() {
-  Ndarray x({2, 3}, {1, 2, 3, 4, 5, 6});
-  int64_t y[2] = {1, 2};
+  Ndarray x(
+      {10, 3},
+      {0.606567333443,  2.01332481698,   -0.412612214561,  2.00837371654,
+       -1.69085691849,  -0.927916647393, -1.09005211705,   -0.653620648868,
+       0.0666283866334, 0.254954252311,  0.340857401319,   0.0496995230027,
+       -1.94295023989,  -1.43503197228,  -0.0410528775914, -0.559448809852,
+       -0.238213612927, 1.30991891347,   -1.28008706091,   1.70368255135,
+       -0.824750074568, 0.5727588071,    -0.158276844049,  0.626666765954,
+       0.191062542884,  -0.834485465771, 0.850058643765,   -1.064674118,
+       -0.844348867234, 0.842866950183});
+  int64_t y[] = {0, 0, 2, 1, 2, 2, 0, 2, 1, 0};
   Ndarray dx = x.as_zeros();
   double loss = SoftmaxLoss(x, y, &dx);
-  assert(std::abs(loss - 0.9076059644443804) < 1e-6);
-  Ndarray expected({2, 3}, {0.04501529, -0.37763576, 0.33262048, 0.04501529,
-                            0.12236424, -0.16737952});
+  assert(std::abs(loss - 1.23806746255) < 1e-6);
+  Ndarray expected(
+      {10, 3},
+      {-0.0816297586624, 0.0750001055049,  0.00662965315753, -0.0072188176925,
+       0.00229564352518, 0.00492317416731, 0.0174625574496,  0.0270176534179,
+       -0.0444802108675, 0.0344335944191,  -0.0624776851452, 0.0280440907261,
+       0.0106832811246,  0.017753776882,   -0.0284370580066, 0.0112828293339,
+       0.0155571017573,  -0.0268399310912, -0.0955234991858, 0.0884653796641,
+       0.00705811952166, 0.0394197784293,  0.0189770817952,  -0.0583968602245,
+       0.0303817386307,  -0.0891051116957, 0.058723373065,   -0.0888678440386,
+       0.0138760329613,  0.0749918110773});
   assert(std::abs(dx.sum() - expected.sum()) < 1e-6);
-}
-
-Ndarray NumericGrad(std::function<double()> func, Ndarray x, double h) {
-  auto dx = x.as_zeros();
-  for (int64_t i0 = 0; i0 < x.shape(0); i0++) {
-    for (int64_t i1 = 0; i1 < x.shape(1); i1++) {
-      for (int64_t i2 = 0; i2 < x.shape(2); i2++) {
-        for (int64_t i3 = 0; i3 < x.shape(3); i3++) {
-          x.at(i0, i1, i2, i3) += h;
-          auto s1 = func();
-          x.at(i0, i1, i2, i3) -= h + h;
-          auto s2 = func();
-          dx.at(i0, i1, i2, i3) = (s1 - s2) / (h + h);
-          x.at(i0, i1, i2, i3) += h;
-        }
-      }
-    }
-  }
-  return dx;
 }
 
 void TestCnn() {
@@ -258,7 +294,7 @@ void TestCnn() {
     auto loss = cnn.loss(x, y);
 
     Ndarray dscores({x.shape(0), config.n_classes}, nullptr);
-#define TestGrad(target, grad)                                      \
+#define TEST_CNN(target, grad)                                      \
   do {                                                              \
     auto grad2 = NumericGrad(                                       \
         [&x, y, &cnn, &dscores]() {                                 \
@@ -269,13 +305,13 @@ void TestCnn() {
     auto diff = grad - grad2;                                       \
     std::cout << "max diff " #grad ": " << diff.max() << std::endl; \
   } while (0)
-    TestGrad(cnn.conv_.w_, cnn.conv_.dw_);
-    TestGrad(cnn.conv_.b_, cnn.conv_.db_);
-    TestGrad(cnn.affine_.w_, cnn.affine_.dw_);
-    TestGrad(cnn.affine_.b_, cnn.affine_.db_);
-    TestGrad(cnn.affine2_.w_, cnn.affine2_.dw_);
-    TestGrad(cnn.affine2_.b_, cnn.affine2_.db_);
-#undef TestGrad
+    TEST_CNN(cnn.conv_.w_, cnn.conv_.dw_);
+    TEST_CNN(cnn.conv_.b_, cnn.conv_.db_);
+    TEST_CNN(cnn.affine_.w_, cnn.affine_.dw_);
+    TEST_CNN(cnn.affine_.b_, cnn.affine_.db_);
+    TEST_CNN(cnn.affine2_.w_, cnn.affine2_.dw_);
+    TEST_CNN(cnn.affine2_.b_, cnn.affine2_.db_);
+#undef TEST_CNN
   }
   {
     SimpleConvNet::Config config;
@@ -294,7 +330,7 @@ void TestCnn() {
     Ndarray x({N, config.input_depth, config.input_height, config.input_width},
               nullptr);
     x.gaussian(1);
-    std::vector<int64_t> y(N);
+    int64_t y[N];
     for (int64_t i = 0; i < N; i++) {
       y[i] = (i * i) % N;
     }
@@ -302,7 +338,7 @@ void TestCnn() {
               x, y,  // eval data
               10,    // epochs
               20,    // batch
-              0.1,   // lr
+              0.01,  // lr
               10);   // eval_every
 
     std::cout << "check if the model overfits" << std::endl;

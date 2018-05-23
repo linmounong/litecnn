@@ -78,20 +78,18 @@ double SimpleConvNet::loss(const Ndarray& x, const int64_t* y) {
   return loss;
 }
 
-void SimpleConvNet::train(const Ndarray& x, const std::vector<int64_t>& y,
-                          const Ndarray& x_val,
-                          const std::vector<int64_t>& y_val, int epochs,
-                          int64_t batch, double lr, int64_t eval_every) {
+void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
+                          const Ndarray& x_val, const int64_t* y_val,
+                          int epochs, int64_t batch, double lr,
+                          int64_t eval_every) {
   assert(x.ndim() == 4);
-  assert(x.shape(0) == y.size());
   assert(x_val.ndim() == 4);
-  assert(x_val.shape(0) == y_val.size());
-  int64_t N = y.size();
+  int64_t N = x.shape(0);
   for (int epoch = 0; epoch < epochs; epoch++) {
     for (int64_t i = 0; i < N; i += batch) {
       auto N_batch = std::min(batch, N - i);
       auto x_batch = x.slice(i, N_batch);
-      const int64_t* y_batch = &y[i];
+      const int64_t* y_batch = y + i;
       double batchloss = loss(x_batch, y_batch);
 #define SGD(layer, param) \
   layer.d##param *= lr;   \
@@ -104,19 +102,17 @@ void SimpleConvNet::train(const Ndarray& x, const std::vector<int64_t>& y,
       SGD(affine2_, b_);
 #undef SGD
       losses_.push_back(batchloss);
+      std::cout << "iter:" << iter_ << " epoch:" << epoch
+                << " loss:" << batchloss << std::endl;
       iter_++;
       if (eval_every > 0 && iter_ % eval_every == 0) {
-        double train_accuracy = eval(x, &y[0]);
-        double val_accuracy = eval(x_val, &y_val[0]);
-        std::cout << "iter:" << iter_ << " epoch:" << epoch
-                  << " train_accuracy:" << train_accuracy
-                  << " val_accuracy:" << val_accuracy << " loss:" << batchloss
-                  << std::endl;
+        double val_accuracy = eval(x_val, y_val);
+        std::cout << "val_accuracy:" << val_accuracy << std::endl;
       }
     }
   }
-  double train_accuracy = eval(x, &y[0]);
-  double val_accuracy = eval(x_val, &y_val[0]);
+  double train_accuracy = eval(x, y);
+  double val_accuracy = eval(x_val, y_val);
   std::cout << "final train_accuracy:" << train_accuracy
             << " val_accuracy:" << val_accuracy << " loss:" << *losses_.rbegin()
             << std::endl;

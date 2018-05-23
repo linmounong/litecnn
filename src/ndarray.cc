@@ -140,9 +140,14 @@ Ndarray Ndarray::operator/=(const Ndarray& rhs) const {
   return binop(rhs, std::divides<double>(), true);
 }
 
-Ndarray Ndarray::binop(double a,
-                       std::function<double(double, double)> op) const {
-  auto ret = this->fork();
+Ndarray Ndarray::binop(double a, std::function<double(double, double)> op,
+                       bool inplace) const {
+  Ndarray ret;
+  if (inplace) {
+    ret = *this;
+  } else {
+    ret = this->fork();
+  }
   for (auto& v : *ret.data_) {
     v = op(v, a);
   }
@@ -150,16 +155,28 @@ Ndarray Ndarray::binop(double a,
 }
 
 Ndarray Ndarray::operator+(double a) const {
-  return binop(a, std::plus<double>());
+  return binop(a, std::plus<double>(), false);
 }
 Ndarray Ndarray::operator-(double a) const {
-  return binop(a, std::minus<double>());
+  return binop(a, std::minus<double>(), false);
 }
 Ndarray Ndarray::operator*(double a) const {
-  return binop(a, std::multiplies<double>());
+  return binop(a, std::multiplies<double>(), false);
 }
 Ndarray Ndarray::operator/(double a) const {
-  return binop(a, std::divides<double>());
+  return binop(a, std::divides<double>(), false);
+}
+Ndarray Ndarray::operator+=(double a) const {
+  return binop(a, std::plus<double>(), true);
+}
+Ndarray Ndarray::operator-=(double a) const {
+  return binop(a, std::minus<double>(), true);
+}
+Ndarray Ndarray::operator*=(double a) const {
+  return binop(a, std::multiplies<double>(), true);
+}
+Ndarray Ndarray::operator/=(double a) const {
+  return binop(a, std::divides<double>(), true);
 }
 
 void Ndarray::gaussian(double a) {

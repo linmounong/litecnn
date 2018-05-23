@@ -28,9 +28,9 @@ class SimpleConvNet {
   Ndarray forward(const Ndarray& x);
   Ndarray backward(const Ndarray& dscores);
 
-  void train(const Ndarray& x, const std::vector<int64_t>& y,
-             const Ndarray& x_val, const std::vector<int64_t>& y_val,
-             int epochs, int64_t batch, double lr, int64_t eval_every);
+  void train(const Ndarray& x, const int64_t* y, const Ndarray& x_val,
+             const int64_t* y_val, int epochs, int64_t batch, double lr,
+             int64_t eval_every);
   void predict(const Ndarray& x, int64_t* y);
   double eval(const Ndarray& x, const int64_t* y);
 

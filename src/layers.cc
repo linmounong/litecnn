@@ -134,6 +134,11 @@ Ndarray Conv::forward(const Ndarray& x) {
   // x    k
   for (int64_t i2 = 0; i2 < out.shape(2); i2++) {
     for (int64_t i3 = 0; i3 < out.shape(3); i3++) {
+      for (int64_t i0 = 0; i0 < out.shape(0); i0++) {
+        for (int64_t i1 = 0; i1 < out.shape(1); i1++) {
+          out.at(i0, i1, i2, i3) += b_.at(i1);
+        }
+      }
       for (int64_t j2 = 0, k2 = i2 * s_ - p_; k2 < H && j2 < w_.shape(2);
            j2++, k2++) {
         if (k2 < 0) {
@@ -147,13 +152,13 @@ Ndarray Conv::forward(const Ndarray& x) {
           for (int64_t i0 = 0; i0 < out.shape(0); i0++) {
             int64_t k0 = i0;
             for (int64_t i1 = 0; i1 < out.shape(1); i1++) {
-              double v = b_.at(i1);
+              double v = 0.0;
               int64_t j0 = i1;
               for (int64_t j1 = 0; j1 < w_.shape(1); j1++) {
                 int64_t k1 = j1;
                 v += w_.at(j0, j1, j2, j3) * x.at(k0, k1, k2, k3);
               }
-              out.at(i0, i1, i2, i3) = v;
+              out.at(i0, i1, i2, i3) += v;
             }
           }
         }
