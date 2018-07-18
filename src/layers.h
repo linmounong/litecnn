@@ -16,6 +16,8 @@ class Affine {
   Ndarray b_;
   Ndarray dw_;
   Ndarray db_;
+  Ndarray sw_;
+  Ndarray sb_;
 
  private:
   Ndarray x_;
@@ -53,8 +55,10 @@ class Conv {
 
   Ndarray w_;   // (fn,fc,fh,fw)
   Ndarray dw_;  // (fn,fc,fh,fw)
+  Ndarray sw_;  // (fn,fc,fh,fw)
   Ndarray b_;   // (fc,)
   Ndarray db_;  // (fc,)
+  Ndarray sb_;  // (fc,)
 
  private:
   const int64_t fh_;  // filter height

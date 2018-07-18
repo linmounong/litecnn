@@ -50,6 +50,10 @@ void TestNdarray() {
   assert(std::vector<int64_t>{6} == m.sum(0).shape());
   assert(std::vector<int64_t>{3} == m.sum(1).shape());
 
+  Ndarray msqr = m * m;
+  assert(msqr == m.pow(2));
+  assert(m == msqr.pow(.5));
+
   auto t = m.T();
   assert(t.ndim() == 2);
   assert(t.shape(0) == 6);
@@ -87,22 +91,19 @@ void TestNdarray() {
     assert(data4[i] == data[i] * data[i]);
   }
 
-  Ndarray a({2, 3},
-            {
-                1, 2, 3,  //
-                4, 5, 6,  //
-            });
-  Ndarray b({3, 2},
-            {
-                7, 8,    //
-                9, 10,   //
-                11, 12,  //
-            });
-  Ndarray c({2, 2},
-            {
-                58, 64,    //
-                139, 154,  //
-            });
+  Ndarray a({2, 3}, {
+                        1, 2, 3,  //
+                        4, 5, 6,  //
+                    });
+  Ndarray b({3, 2}, {
+                        7, 8,    //
+                        9, 10,   //
+                        11, 12,  //
+                    });
+  Ndarray c({2, 2}, {
+                        58, 64,    //
+                        139, 154,  //
+                    });
   assert(a.dot(b) == c);
 
   // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
@@ -336,9 +337,9 @@ void TestCnn() {
     }
     cnn.train(x, y,  // train data
               x, y,  // eval data
-              10,    // epochs
+              2,     // epochs
               20,    // batch
-              0.01,  // lr
+              0.1,   // lr
               1,     // log_every
               10);   // eval_every
 
@@ -348,8 +349,8 @@ void TestCnn() {
 
 int main() {
   TestNdarray();
-  TestLayers();
-  TestLoss();
+  // TestLayers();
+  // TestLoss();
   TestCnn();
   std::cout << "all passed" << std::endl;
 }

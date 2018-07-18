@@ -179,6 +179,11 @@ Ndarray Ndarray::operator/=(double a) const {
   return binop(a, std::divides<double>(), true);
 }
 
+namespace {
+double mypow(double a, double b) { return std::pow(a, b); }
+}  // namespace
+Ndarray Ndarray::pow(double a) const { return binop(a, mypow, false); }
+
 void Ndarray::gaussian(double a) {
   std::minstd_rand rng(1);
   std::normal_distribution<> gaussian(0, a);

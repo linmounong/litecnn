@@ -1,3 +1,2 @@
 * multithread
 * batchnorm
-* adam

@@ -97,6 +97,8 @@ class Ndarray {
   Ndarray operator*=(double a) const;
   Ndarray operator/=(double a) const;
 
+  Ndarray pow(double a) const;
+
   // -1 for autoshape (at most 1 "-1")
   Ndarray reshape(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
                   int64_t s3 = 0);
@@ -105,8 +107,6 @@ class Ndarray {
   Ndarray reshape(const std::vector<int64_t>& shape);
 
   Ndarray T() const;
-
-  void zero();
 
   double max() const;
 

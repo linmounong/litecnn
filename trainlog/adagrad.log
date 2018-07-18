@@ -1,0 +1,137 @@
+bin/mnist_main
+loaded 60000 from dataset.training_images
+loaded 10000 from dataset.test_images
+iter:10 epoch:1 loss:1.91065
+iter:20 epoch:1 loss:1.008
+iter:30 epoch:1 loss:0.895779
+iter:40 epoch:1 loss:0.734963
+iter:50 epoch:1 loss:0.776668
+iter:60 epoch:1 loss:0.565141
+iter:70 epoch:1 loss:0.533811
+iter:80 epoch:1 loss:0.5881
+iter:90 epoch:1 loss:0.599787
+iter:100 epoch:1 loss:0.517705
+val_accuracy:0.922
+iter:110 epoch:1 loss:0.637737
+iter:120 epoch:1 loss:0.567516
+iter:130 epoch:1 loss:0.635546
+iter:140 epoch:1 loss:0.416994
+iter:150 epoch:1 loss:0.558745
+iter:160 epoch:1 loss:0.556253
+iter:170 epoch:1 loss:0.459293
+iter:180 epoch:1 loss:0.38967
+iter:190 epoch:1 loss:0.341393
+iter:200 epoch:1 loss:0.438103
+val_accuracy:0.927
+iter:210 epoch:1 loss:0.441021
+iter:220 epoch:1 loss:0.60783
+iter:230 epoch:1 loss:0.409853
+iter:240 epoch:1 loss:0.446274
+iter:250 epoch:1 loss:0.523142
+iter:260 epoch:1 loss:0.464554
+iter:270 epoch:1 loss:0.397489
+iter:280 epoch:1 loss:0.466774
+iter:290 epoch:1 loss:0.452797
+iter:300 epoch:1 loss:0.480937
+val_accuracy:0.919
+iter:310 epoch:1 loss:0.403338
+iter:320 epoch:1 loss:0.478328
+iter:330 epoch:1 loss:0.501233
+iter:340 epoch:1 loss:0.384609
+iter:350 epoch:1 loss:0.530587
+iter:360 epoch:1 loss:0.45594
+iter:370 epoch:1 loss:0.375578
+iter:380 epoch:1 loss:0.392056
+iter:390 epoch:1 loss:0.501963
+iter:400 epoch:1 loss:0.375357
+val_accuracy:0.947
+iter:410 epoch:1 loss:0.438961
+iter:420 epoch:1 loss:0.36618
+iter:430 epoch:1 loss:0.461035
+iter:440 epoch:1 loss:0.403137
+iter:450 epoch:1 loss:0.324723
+iter:460 epoch:1 loss:0.397445
+iter:470 epoch:1 loss:0.466137
+iter:480 epoch:1 loss:0.388795
+iter:490 epoch:1 loss:0.540935
+iter:500 epoch:1 loss:0.461401
+val_accuracy:0.947
+iter:510 epoch:1 loss:0.534295
+iter:520 epoch:1 loss:0.43578
+iter:530 epoch:1 loss:0.293858
+iter:540 epoch:1 loss:0.386266
+iter:550 epoch:1 loss:0.431064
+iter:560 epoch:1 loss:0.411763
+iter:570 epoch:1 loss:0.40557
+iter:580 epoch:1 loss:0.427645
+iter:590 epoch:1 loss:0.369401
+iter:600 epoch:1 loss:0.414054
+val_accuracy:0.945
+iter:610 epoch:2 loss:0.353881
+iter:620 epoch:2 loss:0.396277
+iter:630 epoch:2 loss:0.412554
+iter:640 epoch:2 loss:0.507017
+iter:650 epoch:2 loss:0.534333
+iter:660 epoch:2 loss:0.298578
+iter:670 epoch:2 loss:0.326145
+iter:680 epoch:2 loss:0.460657
+iter:690 epoch:2 loss:0.414458
+iter:700 epoch:2 loss:0.369646
+val_accuracy:0.944
+iter:710 epoch:2 loss:0.429329
+iter:720 epoch:2 loss:0.38939
+iter:730 epoch:2 loss:0.505069
+iter:740 epoch:2 loss:0.329765
+iter:750 epoch:2 loss:0.445829
+iter:760 epoch:2 loss:0.434076
+iter:770 epoch:2 loss:0.407472
+iter:780 epoch:2 loss:0.292234
+iter:790 epoch:2 loss:0.296868
+iter:800 epoch:2 loss:0.371985
+val_accuracy:0.94
+iter:810 epoch:2 loss:0.322978
+iter:820 epoch:2 loss:0.497472
+iter:830 epoch:2 loss:0.35513
+iter:840 epoch:2 loss:0.383327
+iter:850 epoch:2 loss:0.444185
+iter:860 epoch:2 loss:0.38693
+iter:870 epoch:2 loss:0.344412
+iter:880 epoch:2 loss:0.377336
+iter:890 epoch:2 loss:0.390547
+iter:900 epoch:2 loss:0.392828
+val_accuracy:0.946
+iter:910 epoch:2 loss:0.361452
+iter:920 epoch:2 loss:0.444493
+iter:930 epoch:2 loss:0.441664
+iter:940 epoch:2 loss:0.355714
+iter:950 epoch:2 loss:0.49462
+iter:960 epoch:2 loss:0.411982
+iter:970 epoch:2 loss:0.328503
+iter:980 epoch:2 loss:0.351311
+iter:990 epoch:2 loss:0.415401
+iter:1000 epoch:2 loss:0.347238
+val_accuracy:0.953
+iter:1010 epoch:2 loss:0.392808
+iter:1020 epoch:2 loss:0.334379
+iter:1030 epoch:2 loss:0.40489
+iter:1040 epoch:2 loss:0.355241
+iter:1050 epoch:2 loss:0.301041
+iter:1060 epoch:2 loss:0.360226
+iter:1070 epoch:2 loss:0.441942
+iter:1080 epoch:2 loss:0.352853
+iter:1090 epoch:2 loss:0.424087
+iter:1100 epoch:2 loss:0.435084
+val_accuracy:0.955
+iter:1110 epoch:2 loss:0.477118
+iter:1120 epoch:2 loss:0.396697
+iter:1130 epoch:2 loss:0.271004
+iter:1140 epoch:2 loss:0.353022
+iter:1150 epoch:2 loss:0.386382
+iter:1160 epoch:2 loss:0.377279
+iter:1170 epoch:2 loss:0.377121
+iter:1180 epoch:2 loss:0.396384
+iter:1190 epoch:2 loss:0.349055
+iter:1200 epoch:2 loss:0.387377
+val_accuracy:0.953
+final val accuracy:0.953 loss:0.387377
+final test accuracy 0.956

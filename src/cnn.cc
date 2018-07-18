@@ -92,16 +92,26 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
       auto x_batch = x.slice(i, N_batch);
       const int64_t* y_batch = y + i;
       double batchloss = loss(x_batch, y_batch);
-#define SGD(layer, param) \
-  layer.d##param *= lr;   \
-  layer.param -= layer.d##param
-      SGD(conv_, w_);
-      SGD(conv_, b_);
-      SGD(affine_, w_);
-      SGD(affine_, b_);
-      SGD(affine2_, w_);
-      SGD(affine2_, b_);
-#undef SGD
+#define ADAGRAD(layer, param)   \
+  do {                          \
+    auto& s = layer.s##param;   \
+    auto& d = layer.d##param;   \
+    auto& p = layer.param;      \
+    if (s.ndim() == 0) {        \
+      s = d.as_zeros() + .0001; \
+    }                           \
+    s += d.pow(2);              \
+    d *= lr;                    \
+    d /= s.pow(.5);             \
+    p -= d;                     \
+  } while (0)
+      ADAGRAD(conv_, w_);
+      ADAGRAD(conv_, b_);
+      ADAGRAD(affine_, w_);
+      ADAGRAD(affine_, b_);
+      ADAGRAD(affine2_, w_);
+      ADAGRAD(affine2_, b_);
+#undef ADAGRAD
       losses_.push_back(batchloss);
       iter_++;
       if (log_every > 0 && iter_ % log_every == 0) {
