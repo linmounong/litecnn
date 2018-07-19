@@ -3,11 +3,14 @@
 #include <cassert>
 #include <iostream>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 #include "layers.h"
 #include "loss.h"
 #include "ndarray.h"
+
+namespace litecnn {
 
 SimpleConvNet::Config& SimpleConvNet::Config::validated() {
   assert(input_depth > 0);
@@ -28,22 +31,22 @@ SimpleConvNet::SimpleConvNet(SimpleConvNet::Config config)
             config.n_filters, 1, (config.filter_size - 1) / 2,
             config.weight_scale),
       pool_(2, 2, 2),
-      affine_(config.n_filters * (config.input_height / 2) *
-                  (config.input_width / 2),
+      affine_(config.n_filters * ((config.input_height + 1) / 2) *
+                  ((config.input_width + 1) / 2),
               config.hidden_dim, config.weight_scale),
-      affine2_(config.hidden_dim, config.n_classes, config.weight_scale)
-
-{}
+      affine2_(config.hidden_dim, config.n_classes, config.weight_scale),
+      iter_(new std::atomic_int(0)) {}
 
 Ndarray SimpleConvNet::forward(const Ndarray& x) {
   assert(x.ndim() == 4);
   assert(x.shape(1) == config_.input_depth);
   assert(x.shape(2) == config_.input_height);
   assert(x.shape(3) == config_.input_width);
+
   auto out1 = conv_.forward(x);
   auto out2 = relu_.forward(out1);
   auto out3 = pool_.forward(out2);
-  out3_shape_ = out3.shape();
+  shape_before_affine_ = out3.shape();
   auto out4 = out3.reshape(out3.shape(0), -1);
   auto out5 = affine_.forward(out4);
   auto out6 = relu2_.forward(out5);
@@ -55,7 +58,7 @@ Ndarray SimpleConvNet::backward(const Ndarray& dscores) {
   auto dout6 = affine2_.backward(dscores);
   auto dout5 = relu2_.backward(dout6);
   auto dout4 = affine_.backward(dout5);
-  auto dout3 = dout4.reshape(out3_shape_);
+  auto dout3 = dout4.reshape(shape_before_affine_);
   auto dout2 = pool_.backward(dout3);
   auto dout1 = relu_.backward(dout2);
   auto dx = conv_.backward(dout1);
@@ -86,24 +89,27 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
   assert(x.ndim() == 4);
   assert(x_val.ndim() == 4);
   int64_t N = x.shape(0);
+  double batchloss = .0;
   for (int ep = 0; ep < epochs; ep++) {
     for (int64_t i = 0; i < N; i += batch) {
       auto N_batch = std::min(batch, N - i);
       auto x_batch = x.slice(i, N_batch);
       const int64_t* y_batch = y + i;
-      double batchloss = loss(x_batch, y_batch);
-#define ADAGRAD(layer, param)   \
-  do {                          \
-    auto& s = layer.s##param;   \
-    auto& d = layer.d##param;   \
-    auto& p = layer.param;      \
-    if (s.ndim() == 0) {        \
-      s = d.as_zeros() + .0001; \
-    }                           \
-    s += d.pow(2);              \
-    d *= lr;                    \
-    d /= s.pow(.5);             \
-    p -= d;                     \
+      SimpleConvNet snap = snapshot();
+      batchloss = snap.loss(x_batch, y_batch);
+#define ADAGRAD(layer, param)                        \
+  do {                                               \
+    std::lock_guard<std::mutex> guard(*layer.lock_); \
+    auto& n = layer.n##param;                        \
+    auto& d = snap.layer.d##param;                   \
+    auto& p = layer.param;                           \
+    if (n.ndim() == 0) {                             \
+      n = d.as_zeros() + .0001;                      \
+    }                                                \
+    n += d.pow(2);                                   \
+    d *= lr;                                         \
+    d /= n.pow(.5);                                  \
+    p -= d;                                          \
   } while (0)
       ADAGRAD(conv_, w_);
       ADAGRAD(conv_, b_);
@@ -112,21 +118,20 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
       ADAGRAD(affine2_, w_);
       ADAGRAD(affine2_, b_);
 #undef ADAGRAD
-      losses_.push_back(batchloss);
-      iter_++;
-      if (log_every > 0 && iter_ % log_every == 0) {
-        std::cout << "iter:" << iter_ << " epoch:" << ep + 1
+      int curr = iter_->fetch_add(1) + 1;
+      if (log_every > 0 && curr % log_every == 0) {
+        std::cout << "iter:" << curr << " epoch:" << ep + 1
                   << " loss:" << batchloss << std::endl;
       }
-      if (eval_every > 0 && iter_ % eval_every == 0) {
+      if (eval_every > 0 && curr % eval_every == 0) {
         double val_accuracy = eval(x_val, y_val);
         std::cout << "val_accuracy:" << val_accuracy << std::endl;
       }
     }
   }
   double val_accuracy = eval(x_val, y_val);
-  std::cout << "final val accuracy:" << val_accuracy
-            << " loss:" << *losses_.rbegin() << std::endl;
+  std::cout << "final val accuracy:" << val_accuracy << " loss:" << batchloss
+            << std::endl;
 }
 
 void SimpleConvNet::predict(const Ndarray& x, int64_t* y) {
@@ -159,3 +164,16 @@ double SimpleConvNet::eval(const Ndarray& x, const int64_t* y) {
   }
   return match / size;
 }
+
+SimpleConvNet SimpleConvNet::snapshot() {
+  SimpleConvNet snap = *this;
+  snap.conv_.w_ = snap.conv_.w_.fork();
+  snap.conv_.b_ = snap.conv_.b_.fork();
+  snap.affine_.w_ = snap.affine_.w_.fork();
+  snap.affine_.b_ = snap.affine_.b_.fork();
+  snap.affine2_.w_ = snap.affine2_.w_.fork();
+  snap.affine2_.b_ = snap.affine2_.b_.fork();
+  return snap;
+}
+
+}  // namespace litecnn

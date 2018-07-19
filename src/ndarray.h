@@ -7,6 +7,8 @@
 #include <memory>
 #include <vector>
 
+namespace litecnn {
+
 class Ndarray {
  public:
   explicit Ndarray(int64_t s0 = 0, int64_t s1 = 0, int64_t s2 = 0,
@@ -140,4 +142,5 @@ class Ndarray {
   bool transposed_ = false;
 };
 
+}  // namespace litecnn
 #endif  // NDARRAY_H

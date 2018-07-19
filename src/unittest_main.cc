@@ -8,6 +8,8 @@
 #include "loss.h"
 #include "ndarray.h"
 
+namespace litecnn {
+
 Ndarray NumericGrad(std::function<double()> func, Ndarray x, double h) {
   auto dx = x.as_zeros();
   for (int64_t i0 = 0; i0 < x.shape(0); i0++) {
@@ -91,19 +93,24 @@ void TestNdarray() {
     assert(data4[i] == data[i] * data[i]);
   }
 
-  Ndarray a({2, 3}, {
-                        1, 2, 3,  //
-                        4, 5, 6,  //
-                    });
-  Ndarray b({3, 2}, {
-                        7, 8,    //
-                        9, 10,   //
-                        11, 12,  //
-                    });
-  Ndarray c({2, 2}, {
-                        58, 64,    //
-                        139, 154,  //
-                    });
+  // clang-format off
+  Ndarray a({2, 3},
+            {
+                1, 2, 3,
+                4, 5, 6,
+            });
+  Ndarray b({3, 2},
+            {
+                7, 8,
+                9, 10,
+                11, 12,
+            });
+  Ndarray c({2, 2},
+            {
+                58, 64,
+                139, 154,
+            });
+  // clang-format on
   assert(a.dot(b) == c);
 
   // >>> a = (np.arange(6)+1).reshape(2, 1, 3)
@@ -347,10 +354,12 @@ void TestCnn() {
   }
 }
 
+}  // namespace litecnn
+
 int main() {
-  TestNdarray();
-  // TestLayers();
-  // TestLoss();
-  TestCnn();
+  litecnn::TestNdarray();
+  litecnn::TestLayers();
+  litecnn::TestLoss();
+  litecnn::TestCnn();
   std::cout << "all passed" << std::endl;
 }

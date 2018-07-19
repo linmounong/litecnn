@@ -2,8 +2,12 @@
 #define LAYERS_H
 
 #include <algorithm>
+#include <memory>
+#include <mutex>
 
 #include "ndarray.h"
+
+namespace litecnn {
 
 class Affine {
  public:
@@ -16,8 +20,14 @@ class Affine {
   Ndarray b_;
   Ndarray dw_;
   Ndarray db_;
-  Ndarray sw_;
-  Ndarray sb_;
+
+  // for training
+  Ndarray nw_;
+  Ndarray nb_;
+  Ndarray zw_;
+  Ndarray zb_;
+
+  std::shared_ptr<std::mutex> lock_;
 
  private:
   Ndarray x_;
@@ -55,10 +65,15 @@ class Conv {
 
   Ndarray w_;   // (fn,fc,fh,fw)
   Ndarray dw_;  // (fn,fc,fh,fw)
-  Ndarray sw_;  // (fn,fc,fh,fw)
+  Ndarray nw_;  // (fn,fc,fh,fw)
   Ndarray b_;   // (fc,)
   Ndarray db_;  // (fc,)
-  Ndarray sb_;  // (fc,)
+
+  // for training
+  Ndarray nb_;  // (fc,)
+  Ndarray zb_;  // (fc,)
+
+  std::shared_ptr<std::mutex> lock_;
 
  private:
   const int64_t fh_;  // filter height
@@ -70,4 +85,5 @@ class Conv {
   Ndarray x_;
 };
 
+}  // namespace litecnn
 #endif  // LAYERS_H

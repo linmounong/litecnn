@@ -11,6 +11,8 @@
 #include <random>
 #include <vector>
 
+namespace litecnn {
+
 Ndarray::Ndarray(int64_t s0, int64_t s1, int64_t s2, int64_t s3)
     : Ndarray(std::vector<int64_t>{s0, s1, s2, s3}, nullptr) {}
 
@@ -340,15 +342,14 @@ Ndarray Ndarray::slice(int64_t i, int64_t n) const {
   assert(!transposed_);
   auto newshape = shape();
   auto s0 = newshape[0];
-  if (n < 0) {
-    n += s0;
-  }
   assert(i >= 0);
   assert(i < s0);
-  assert(i + n > 0);
+  assert(n > 0);
   assert(i + n <= s0);
   newshape[0] = n;
   Ndarray ret(newshape, data_);
   ret.offset_ += i * stride_[0];
   return ret;
 }
+
+}  // namespace litecnn
