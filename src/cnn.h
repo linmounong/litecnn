@@ -1,8 +1,11 @@
+#include <atomic>
 #include <vector>
 
 #include "layers.h"
 #include "loss.h"
 #include "ndarray.h"
+
+namespace litecnn {
 
 // conv - relu - 2x2 pool - affine - relu - affine - softmax
 class SimpleConvNet {
@@ -21,17 +24,20 @@ class SimpleConvNet {
     Config& validated();
   };
 
-  SimpleConvNet(Config config);
+  explicit SimpleConvNet(Config config);
 
   double loss(const Ndarray& x, const int64_t* y);
 
   Ndarray forward(const Ndarray& x);
   Ndarray backward(const Ndarray& dscores);
 
+  // thread safe
   void train(const Ndarray& x, const int64_t* y, const Ndarray& x_val,
              const int64_t* y_val, int epochs, int64_t batch, double lr,
              int64_t log_every, int64_t eval_every);
+
   void predict(const Ndarray& x, int64_t* y);
+
   double eval(const Ndarray& x, const int64_t* y);
 
   // layers
@@ -44,8 +50,9 @@ class SimpleConvNet {
 
  private:
   Config config_;
-  std::vector<int64_t> out3_shape_;
+  std::vector<int64_t> shape_before_affine_;
 
-  int64_t iter_ = 0;
-  std::vector<double> losses_;
+  std::shared_ptr<std::atomic_int> iter_;
 };
+
+}  // namespace litecnn

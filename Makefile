@@ -1,7 +1,7 @@
 .PHONY: all clean test data train
 
 CXX = c++
-FLAGS = -std=c++11 -march=native -O3 ${CXXFLAGS} -I third_party/mnist/include
+FLAGS = -std=c++11 -march=native -O3 -pthread ${CXXFLAGS} -I third_party/mnist/include
 OBJS = layers.o ndarray.o loss.o cnn.o
 BINS = bin/unittest_main bin/mnist_main
 

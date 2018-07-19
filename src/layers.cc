@@ -5,6 +5,8 @@
 
 #include "ndarray.h"
 
+namespace litecnn {
+
 Affine::Affine(int64_t m, int64_t n, double scale) : w_(m, n), b_(n) {
   w_.gaussian(scale);
 }
@@ -209,3 +211,5 @@ Ndarray Conv::backward(const Ndarray& dout) {
   }
   return dx;
 }
+
+}  // namespace litecnn

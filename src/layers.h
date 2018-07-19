@@ -2,8 +2,11 @@
 #define LAYERS_H
 
 #include <algorithm>
+#include <memory>
 
 #include "ndarray.h"
+
+namespace litecnn {
 
 class Affine {
  public:
@@ -13,11 +16,12 @@ class Affine {
   Ndarray backward(const Ndarray& dout);
 
   Ndarray w_;
-  Ndarray b_;
   Ndarray dw_;
+  Ndarray nw_;
+
+  Ndarray b_;
   Ndarray db_;
-  Ndarray sw_;
-  Ndarray sb_;
+  Ndarray nb_;
 
  private:
   Ndarray x_;
@@ -53,12 +57,15 @@ class Conv {
   Ndarray forward(const Ndarray& x);      // N,fc,H,W
   Ndarray backward(const Ndarray& dout);  // N,fn,H',W'
 
-  Ndarray w_;   // (fn,fc,fh,fw)
-  Ndarray dw_;  // (fn,fc,fh,fw)
-  Ndarray sw_;  // (fn,fc,fh,fw)
-  Ndarray b_;   // (fc,)
-  Ndarray db_;  // (fc,)
-  Ndarray sb_;  // (fc,)
+  // (fn,fc,fh,fw)
+  Ndarray w_;
+  Ndarray dw_;
+  Ndarray nw_;
+
+  // (fc,)
+  Ndarray b_;
+  Ndarray db_;
+  Ndarray nb_;
 
  private:
   const int64_t fh_;  // filter height
@@ -70,4 +77,5 @@ class Conv {
   Ndarray x_;
 };
 
+}  // namespace litecnn
 #endif  // LAYERS_H
