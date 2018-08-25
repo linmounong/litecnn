@@ -54,7 +54,6 @@ int main() {
   config.hidden_dim = 50;
   config.weight_scale = 1e-2;
   config.n_classes = 10;
-  config.reg = 0.5;
   litecnn::SimpleConvNet cnn(config);
 
   auto thread_func = [&cnn, &x, y, &x_test, y_test](int i) {
@@ -67,7 +66,7 @@ int main() {
               2,                                              // epochs
               100,                                            // batch
               0.01,                                           // lr
-              10,                                             // log_every
+              1,                                              // log_every
               100);                                           // eval_every
   };
   std::vector<std::thread> threads;

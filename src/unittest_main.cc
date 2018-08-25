@@ -267,7 +267,6 @@ void TestCnn() {
     config.hidden_dim = 100;
     config.weight_scale = 1e-3;
     config.n_classes = 10;
-    config.reg = 0;
 
     Ndarray x({5, config.input_depth, config.input_height, config.input_width},
               nullptr);
@@ -276,11 +275,6 @@ void TestCnn() {
 
     auto loss = SimpleConvNet(config).loss(x, y);
     assert(std::abs(loss - (-std::log(0.1))) < 1e-3);
-
-    config.reg = 0.5;
-    auto loss2 = SimpleConvNet(config).loss(x, y);
-    assert(loss2 > loss);
-    assert(loss2 < loss + 1);
   }
   {
     SimpleConvNet::Config config;
@@ -292,7 +286,6 @@ void TestCnn() {
     config.hidden_dim = 7;
     config.weight_scale = 1e-2;
     config.n_classes = 10;
-    config.reg = 0;
     SimpleConvNet cnn(config);
 
     Ndarray x({2, config.input_depth, config.input_height, config.input_width},
@@ -331,7 +324,6 @@ void TestCnn() {
     config.hidden_dim = 20;
     config.weight_scale = 1e-3;
     config.n_classes = 10;
-    config.reg = 0.0;
     SimpleConvNet cnn(config);
 
     int64_t N = 100;

@@ -10,7 +10,7 @@ namespace litecnn {
 
 Affine::Affine(int64_t m, int64_t n, double scale)
     : w_(m, n), b_(n), lock_(new std::mutex) {
-  w_.gaussian(scale);
+  // w_.gaussian(scale);
 }
 
 Ndarray Affine::forward(const Ndarray& x) {
@@ -122,7 +122,7 @@ Conv::Conv(int64_t fh, int64_t fw, int64_t fc, int64_t fn, int64_t s, int64_t p,
       s_(s),
       p_(p),
       lock_(new std::mutex) {
-  w_.gaussian(scale);
+  // w_.gaussian(scale);
 }
 
 Ndarray Conv::forward(const Ndarray& x) {

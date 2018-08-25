@@ -19,7 +19,12 @@ class SimpleConvNet {
     int64_t hidden_dim = 0;
     double weight_scale = 0;
     int64_t n_classes = 0;
-    double reg = 0;
+
+    // ftrl
+    double alpha = 5;
+    double beta = 0.001;
+    double lambda1 = 0.00;
+    double lambda2 = 0.0;
 
     Config& validated();
   };

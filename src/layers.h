@@ -17,14 +17,13 @@ class Affine {
   Ndarray backward(const Ndarray& dout);
 
   Ndarray w_;
-  Ndarray b_;
   Ndarray dw_;
-  Ndarray db_;
-
-  // for training
   Ndarray nw_;
-  Ndarray nb_;
   Ndarray zw_;
+
+  Ndarray b_;
+  Ndarray db_;
+  Ndarray nb_;
   Ndarray zb_;
 
   std::shared_ptr<std::mutex> lock_;
@@ -63,15 +62,17 @@ class Conv {
   Ndarray forward(const Ndarray& x);      // N,fc,H,W
   Ndarray backward(const Ndarray& dout);  // N,fn,H',W'
 
-  Ndarray w_;   // (fn,fc,fh,fw)
-  Ndarray dw_;  // (fn,fc,fh,fw)
-  Ndarray nw_;  // (fn,fc,fh,fw)
-  Ndarray b_;   // (fc,)
-  Ndarray db_;  // (fc,)
+  // (fn,fc,fh,fw)
+  Ndarray w_;
+  Ndarray dw_;
+  Ndarray nw_;
+  Ndarray zw_;
 
-  // for training
-  Ndarray nb_;  // (fc,)
-  Ndarray zb_;  // (fc,)
+  // (fc,)
+  Ndarray b_;
+  Ndarray db_;
+  Ndarray nb_;
+  Ndarray zb_;
 
   std::shared_ptr<std::mutex> lock_;
 

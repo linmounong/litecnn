@@ -1,6 +1,7 @@
 #include "cnn.h"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -22,6 +23,7 @@ SimpleConvNet::Config& SimpleConvNet::Config::validated() {
   assert(hidden_dim > 0);
   assert(weight_scale > 0);
   assert(weight_scale > 0);
+  assert(alpha > 0);
   return *this;
 }
 
@@ -70,15 +72,6 @@ double SimpleConvNet::loss(const Ndarray& x, const int64_t* y) {
   auto dscores = scores.as_zeros();
   auto loss = SoftmaxLoss(scores, y, &dscores);
   auto dx = backward(dscores);
-  // reg loss
-  if (config_.reg > 0) {
-    loss += config_.reg * 0.5 *
-            ((conv_.w_ * conv_.w_).sum() + (affine_.w_ * affine_.w_).sum() +
-             (affine2_.w_ * affine2_.w_).sum());
-    conv_.dw_ += conv_.w_ * config_.reg;
-    affine_.dw_ += affine_.w_ * config_.reg;
-    affine2_.dw_ += affine2_.w_ * config_.reg;
-  }
   return loss;
 }
 
@@ -97,27 +90,52 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
       const int64_t* y_batch = y + i;
       SimpleConvNet snap = snapshot();
       batchloss = snap.loss(x_batch, y_batch);
-#define ADAGRAD(layer, param)                        \
-  do {                                               \
-    std::lock_guard<std::mutex> guard(*layer.lock_); \
-    auto& n = layer.n##param;                        \
-    auto& d = snap.layer.d##param;                   \
-    auto& p = layer.param;                           \
-    if (n.ndim() == 0) {                             \
-      n = d.as_zeros() + .0001;                      \
-    }                                                \
-    n += d.pow(2);                                   \
-    d *= lr;                                         \
-    d /= n.pow(.5);                                  \
-    p -= d;                                          \
+#define FTRL(layer, param)                                                 \
+  do {                                                                     \
+    std::lock_guard<std::mutex> guard(*layer.lock_);                       \
+    auto& n = layer.n##param;                                              \
+    auto& z = layer.z##param;                                              \
+    auto& g = snap.layer.d##param;                                         \
+    auto& w = layer.param;                                                 \
+    if (n.ndim() == 0) {                                                   \
+      n = g.as_zeros();                                                    \
+    }                                                                      \
+    if (z.ndim() == 0) {                                                   \
+      z = g.as_zeros();                                                    \
+    }                                                                      \
+    for (int64_t i0 = 0; i0 < w.shape(0); i0++) {                          \
+      for (int64_t i1 = 0; i1 < w.shape(1); i1++) {                        \
+        for (int64_t i2 = 0; i2 < w.shape(2); i2++) {                      \
+          for (int64_t i3 = 0; i3 < w.shape(3); i3++) {                    \
+            double gi = g.at(i0, i1, i2, i3);                              \
+            double& ni = n.at(i0, i1, i2, i3);                             \
+            double& zi = z.at(i0, i1, i2, i3);                             \
+            double& wi = w.at(i0, i1, i2, i3);                             \
+            double sigma =                                                 \
+                (std::sqrt(ni + gi * gi) - std::sqrt(ni)) / config_.alpha; \
+            zi += gi - sigma * wi;                                         \
+            ni += gi * gi;                                                 \
+            if (zi > config_.lambda1 || zi < -config_.lambda1) {           \
+              wi = -(zi - (zi >= 0 ? 1 : -1) * config_.lambda1) /          \
+                   ((config_.beta + std::sqrt(ni)) / config_.alpha +       \
+                    config_.lambda2);                                      \
+            } else {                                                       \
+              wi = 0;                                                      \
+            }                                                              \
+            std::cout << gi << " " << ni << " " << zi << " " << wi         \
+                      << std::endl;                                        \
+          }                                                                \
+        }                                                                  \
+      }                                                                    \
+    }                                                                      \
   } while (0)
-      ADAGRAD(conv_, w_);
-      ADAGRAD(conv_, b_);
-      ADAGRAD(affine_, w_);
-      ADAGRAD(affine_, b_);
-      ADAGRAD(affine2_, w_);
-      ADAGRAD(affine2_, b_);
-#undef ADAGRAD
+      FTRL(conv_, w_);
+      FTRL(conv_, b_);
+      FTRL(affine_, w_);
+      FTRL(affine_, b_);
+      FTRL(affine2_, w_);
+      FTRL(affine2_, b_);
+#undef FTRL
       int curr = iter_->fetch_add(1) + 1;
       if (log_every > 0 && curr % log_every == 0) {
         std::cout << "iter:" << curr << " epoch:" << ep + 1
@@ -132,7 +150,7 @@ void SimpleConvNet::train(const Ndarray& x, const int64_t* y,
   double val_accuracy = eval(x_val, y_val);
   std::cout << "final val accuracy:" << val_accuracy << " loss:" << batchloss
             << std::endl;
-}
+}  // namespace litecnn
 
 void SimpleConvNet::predict(const Ndarray& x, int64_t* y) {
   auto scores = forward(x);
