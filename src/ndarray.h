@@ -1,5 +1,4 @@
-#ifndef NDARRAY_H
-#define NDARRAY_H
+#pragma once
 
 #include <cassert>
 #include <cstdint>
@@ -143,4 +142,3 @@ class Ndarray {
 };
 
 }  // namespace litecnn
-#endif  // NDARRAY_H

@@ -9,7 +9,7 @@
 #include "cnn.h"
 #include "mnist/mnist_reader.hpp"
 
-const int kThreads = 4;  // I only have this many cores.
+const int kDefaultThreads = 4;
 
 void ReadData(const std::string& path, litecnn::Ndarray* x,
               std::vector<int64_t>* y, litecnn::Ndarray* x_test,
@@ -39,7 +39,13 @@ void ReadData(const std::string& path, litecnn::Ndarray* x,
 #undef LOAD
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+  int n_threads = kDefaultThreads;
+  if (argc == 2) {
+    n_threads = std::atoi(argv[1]);
+  }
+  std::cout << "training using " << n_threads << " threads" << std::endl;
+
   litecnn::Ndarray x;
   litecnn::Ndarray x_test;
   std::vector<int64_t> y;
@@ -57,10 +63,11 @@ int main() {
   config.n_classes = 10;
   config.reg = 0.5;
   litecnn::SimpleConvNet cnn(config);
+  auto start = std::chrono::steady_clock::now();
 
   std::cout << "warming up..." << std::endl;
-  auto warm_up = [&cnn, &x, &y](int i) {
-    int train_i = x.shape(0) / kThreads * i;
+  auto warm_up = [&cnn, &x, &y, n_threads](int i) {
+    int train_i = x.shape(0) / n_threads * i;
     int train_n = std::min(100LL, x.shape(0) - train_i);
     cnn.train(x.slice(train_i, train_n), &y[train_i],  // train data
               x, &y[0],  // eval data, doesn't matter here
@@ -70,18 +77,18 @@ int main() {
               1,         // log_every
               0);        // eval_every
   };
-  for (int i = 0; i < kThreads; ++i) {
+  for (int i = 0; i < n_threads; ++i) {
     warm_up(i);
   }
-  for (int i = kThreads - 1; i >= 0; --i) {
+  for (int i = n_threads - 1; i >= 0; --i) {
     warm_up(i);
   }
 
-  auto thread_func = [&cnn, &x, &y, &x_test, &y_test](int i) {
-    int train_i = x.shape(0) / kThreads * i;
-    int train_n = std::min(x.shape(0) / kThreads, x.shape(0) - train_i);
-    // int test_i = x_test.shape(0) / kThreads * i;
-    // int test_n = std::min(x_test.shape(0) / kThreads, x.shape(0) - test_i);
+  auto thread_func = [&cnn, &x, &y, &x_test, &y_test, n_threads](int i) {
+    int train_i = x.shape(0) / n_threads * i;
+    int train_n = std::min(x.shape(0) / n_threads, x.shape(0) - train_i);
+    // int test_i = x_test.shape(0) / n_threads * i;
+    // int test_n = std::min(x_test.shape(0) / n_threads, x.shape(0) - test_i);
     int test_i = 0;
     int test_n = 1000;
     std::cout << "thread " << i << "(" << std::this_thread::get_id()
@@ -96,12 +103,17 @@ int main() {
               100);                                           // eval_every
   };
   std::vector<std::thread> threads;
-  for (int i = 0; i < kThreads; ++i) {
+  for (int i = 0; i < n_threads; ++i) {
     threads.emplace_back(thread_func, i);
   }
   for (auto& t : threads) {
     t.join();
   }
+  auto end = std::chrono::steady_clock::now();
+  std::cout
+      << "training took "
+      << std::chrono::duration_cast<std::chrono::seconds>(end - start).count()
+      << "s\n";
   std::cout << "final test accuracy " << cnn.eval(x_test, &y_test[0])
             << std::endl;
 }

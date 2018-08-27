@@ -1,7 +1,5 @@
-#ifndef LAYERS_H
-#define LAYERS_H
+#pragma once
 
-#include <algorithm>
 #include <memory>
 
 #include "ndarray.h"
@@ -77,5 +75,12 @@ class Conv {
   Ndarray x_;
 };
 
+class BatchNorm {
+ public:
+  Ndarray forward(const Ndarray& x);
+  Ndarray backward(const Ndarray& dout);
+
+ private:
+};
+
 }  // namespace litecnn
-#endif  // LAYERS_H
